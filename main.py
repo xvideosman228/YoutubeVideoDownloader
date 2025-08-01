@@ -1,4 +1,5 @@
 import sys
+from email.utils import format_datetime
 from pprint import pprint
 
 from PyQt6 import QtWidgets
@@ -60,38 +61,75 @@ class FormatsMenu(QtWidgets.QWidget):
         self.ui = formatsMenu.Ui_Form()
         self.ui.setupUi(self)
         self.format_dict = {
-            'type': '',
-            'quality': 0,
-            'format':''
+            'type': None,
+            'quality': None,
+            'format': None
         }
 
         self.ui.videoRadioButton.clicked.connect(self.video)
         self.ui.audioRadioButton.clicked.connect(self.audio)
 
-        self.ui.radio1080.clicked.connect(lambda: self.quality(1080))
-        self.ui.radio720.clicked.connect(lambda: self.quality(720))
+        self.videoQualityButtons = [
+            self.ui.radio720,
+            self.ui.radio1080,
+                        ]
 
-        self.ui.radioMP4.clicked.connect(lambda: self.format('mp4'))
-        self.ui.radioMOV.clicked.connect(lambda: self.format('mov'))
+        self.videoFormatsButtons = [
+            self.ui.radioMP4,
+            self.ui.radioMOV
+        ]
 
-        self.ui.radio192.clicked.connect(lambda: self.quality(192))
+        self.audioFormatsButtons = [
+            self.ui.radioMP3,
+            self.ui.radioWAV
+        ]
 
-        self.ui.radioMP3.clicked.connect(lambda: self.format('mp3'))
-        self.ui.radioWAV.clicked.connect(lambda: self.format('wav'))
+        self.audioQualityButtons = [
+            self.ui.radio192
+        ]
+
+        self.ui.radio1080.clicked.connect(lambda: (self.quality(1080), self.video))
+        self.ui.radio720.clicked.connect(lambda: (self.quality(720), self.video))
+
+        self.ui.radioMP4.clicked.connect(lambda: (self.format('mp4'), self.video))
+        self.ui.radioMOV.clicked.connect(lambda: (self.format('mov'), self.video))
+
+        self.ui.radio192.clicked.connect(lambda: (self.quality(192), self.audio))
+
+        self.ui.radioMP3.clicked.connect(lambda: (self.format('mp3'), self.audio))
+        self.ui.radioWAV.clicked.connect(lambda: (self.format('wav'), self.audio))
 
         self.ui.pushButton.clicked.connect(lambda: pprint(self.format_dict))
 
     def video(self):
-        if not self.ui.videoFrame.isEnabled():
-            self.ui.videoFrame.setEnabled(True)
-        self.ui.audioFrame.setEnabled(False)
+        for radio in self.audioQualityButtons:
+            radio.setEnabled(False)
+        for radio in self.audioFormatsButtons:
+            radio.setEnabled(False)
+
+        for radio in self.videoQualityButtons:
+            radio.setEnabled(True)
+        for radio in self.videoFormatsButtons:
+            radio.setEnabled(True)
+
+
+        for x in self.format_dict:
+            self.format_dict[x] = None
+
         self.ui.audioRadioButton.setChecked(False)
         self.format_dict['type'] = 'video'
 
     def audio(self):
-        if not self.ui.audioFrame.isEnabled():
-            self.ui.audioFrame.setEnabled(True)
-        self.ui.videoFrame.setEnabled(False)
+        for radio in self.videoQualityButtons:
+            radio.setEnabled(False)
+        for radio in self.videoFormatsButtons:
+            radio.setEnabled(False)
+
+        for radio in self.audioQualityButtons:
+            radio.setEnabled(True)
+        for radio in self.audioFormatsButtons:
+            radio.setEnabled(True)
+
         self.ui.videoRadioButton.setChecked(False)
         self.format_dict['type'] = 'audio'
 
