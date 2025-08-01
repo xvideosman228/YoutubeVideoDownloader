@@ -41,37 +41,6 @@
    <property name="frameShadow">
     <enum>QFrame::Shadow::Raised</enum>
    </property>
-   <widget class="QRadioButton" name="audioRadioButton">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>40</y>
-      <width>113</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="mouseTracking">
-     <bool>false</bool>
-    </property>
-    <property name="tabletTracking">
-     <bool>false</bool>
-    </property>
-    <property name="text">
-     <string>Аудио</string>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-    <property name="checked">
-     <bool>false</bool>
-    </property>
-    <property name="autoExclusive">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QRadioButton" name="videoRadioButton">
     <property name="geometry">
      <rect>
@@ -89,8 +58,8 @@
   <widget class="QFrame" name="qualityFrame">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>90</y>
+     <x>40</x>
+     <y>110</y>
      <width>351</width>
      <height>80</height>
     </rect>
@@ -104,8 +73,8 @@
    <widget class="QRadioButton" name="radio720">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>20</y>
+      <x>10</x>
+      <y>10</y>
       <width>113</width>
       <height>25</height>
      </rect>
@@ -117,8 +86,8 @@
    <widget class="QRadioButton" name="radio192">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>50</y>
+      <x>190</x>
+      <y>10</y>
       <width>113</width>
       <height>25</height>
      </rect>
@@ -130,8 +99,8 @@
    <widget class="QRadioButton" name="radio1080">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>30</y>
+      <x>10</x>
+      <y>40</y>
       <width>113</width>
       <height>25</height>
      </rect>
@@ -156,24 +125,11 @@
    <property name="frameShadow">
     <enum>QFrame::Shadow::Raised</enum>
    </property>
-   <widget class="QRadioButton" name="radioWAV">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>113</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>wav</string>
-    </property>
-   </widget>
    <widget class="QRadioButton" name="radioMP3">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>50</y>
+      <x>200</x>
+      <y>20</y>
       <width>113</width>
       <height>25</height>
      </rect>
@@ -185,7 +141,7 @@
    <widget class="QRadioButton" name="radioMP4">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>0</x>
       <y>20</y>
       <width>113</width>
       <height>25</height>
@@ -198,7 +154,7 @@
    <widget class="QRadioButton" name="radioMOV">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>0</x>
       <y>50</y>
       <width>113</width>
       <height>25</height>
@@ -208,6 +164,50 @@
      <string>mov</string>
     </property>
    </widget>
+   <widget class="QRadioButton" name="radioWAV">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>50</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>wav</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QRadioButton" name="audioRadioButton">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>40</y>
+     <width>113</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
+   <property name="tabletTracking">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Аудио</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="autoExclusive">
+    <bool>true</bool>
+   </property>
   </widget>
  </widget>
  <resources/>

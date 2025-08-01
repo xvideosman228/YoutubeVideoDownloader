@@ -4,7 +4,8 @@ from pprint import pprint
 
 from PyQt6 import QtWidgets
 from PyQt6.QtGui import QImage, QPixmap
-from PyQt6.QtWidgets import QGraphicsScene
+from PyQt6.QtWidgets import QGraphicsScene, QMessageBox
+from PyQt6.uic.Compiler.qtproxies import QtGui
 
 import foundMenu
 import startMenu
@@ -66,6 +67,12 @@ class FormatsMenu(QtWidgets.QWidget):
             'format': None
         }
 
+        self.translations = {
+            'type': "Тип",
+            'quality': "Качество",
+            'format': "Формат"
+        }
+
         self.ui.videoRadioButton.clicked.connect(self.video)
         self.ui.audioRadioButton.clicked.connect(self.audio)
 
@@ -99,13 +106,15 @@ class FormatsMenu(QtWidgets.QWidget):
         self.ui.radioMP3.clicked.connect(lambda: (self.format('mp3'), self.audio))
         self.ui.radioWAV.clicked.connect(lambda: (self.format('wav'), self.audio))
 
-        self.ui.pushButton.clicked.connect(lambda: pprint(self.format_dict))
+        self.ui.pushButton.clicked.connect(self.checkFields)
 
     def video(self):
         for radio in self.audioQualityButtons:
             radio.setEnabled(False)
+            self.format_dict['quality'] = None
         for radio in self.audioFormatsButtons:
             radio.setEnabled(False)
+            self.format_dict['format'] = None
 
         for radio in self.videoQualityButtons:
             radio.setEnabled(True)
@@ -119,11 +128,25 @@ class FormatsMenu(QtWidgets.QWidget):
         self.ui.audioRadioButton.setChecked(False)
         self.format_dict['type'] = 'video'
 
+    def checkFields(self):
+        unchecked = []
+        for x in self.format_dict:
+            if self.format_dict[x] is None:
+                unchecked.append(self.translations[x])
+        if not unchecked:
+            pprint(self.format_dict)
+            pass
+        else:
+            QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Не добавлены поля {", ".join(unchecked)}')
+
+
     def audio(self):
         for radio in self.videoQualityButtons:
             radio.setEnabled(False)
+            self.format_dict['quality'] = None
         for radio in self.videoFormatsButtons:
             radio.setEnabled(False)
+            self.format_dict['format'] = None
 
         for radio in self.audioQualityButtons:
             radio.setEnabled(True)
@@ -138,6 +161,8 @@ class FormatsMenu(QtWidgets.QWidget):
 
     def format(self, format_: str):
         self.format_dict['format'] = format_
+
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
