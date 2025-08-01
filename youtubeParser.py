@@ -1,11 +1,11 @@
 import json
 from io import BytesIO
-
+import humanize
 import requests
-import wget
 import yt_dlp
 from PIL import Image
 
+from collections import defaultdict
 
 class YoutubeDownloader:
     @staticmethod
@@ -24,17 +24,38 @@ class YoutubeDownloader:
             'https': 'socks5://0.0.0.0:14228'
         }
 
-        # Загрузка изображения через SOCKS5 прокси
         response = requests.get(url, proxies=proxies)
 
-        # Проверка успешности запроса
         if response.status_code == 200:
-            # Открытие изображения из байтов
             image = Image.open(BytesIO(response.content))
             image = image.resize([720,405])
-            # Сохранение изображения
             image.save(f'{name}.png')
         else:
-            print(f'Ошибка при скачивании изображения: {response.status_code}')
+            print(f'Ошибка: {response.status_code}')
 
         return name
+
+    @staticmethod
+    def DownloadVideo(quality: int, url: str):
+        opts = {
+            'proxy': 'socks5://0.0.0.0:14228',
+            'format': f'bv*[height={quality}]+ba'
+        }
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            try:
+                ydl.download(url)
+            except yt_dlp.utils.DownloadError:
+                print('fuck')
+
+    @staticmethod
+    def DownloadAudio(quality: int, url: str):
+        opts = {
+            'proxy': 'socks5://0.0.0.0:14228',
+            'format': f'worstaudio/worst[ext=mp3][abr={quality}]'
+        }
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            try:
+                ydl.download(url)
+            except yt_dlp.utils.DownloadError:
+                print('fuck')
+
