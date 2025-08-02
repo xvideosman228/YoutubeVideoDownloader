@@ -61,6 +61,7 @@ class FormatsMenu(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = formatsMenu.Ui_Form()
         self.ui.setupUi(self)
+        self.url = 'https://youtu.be/LXb3EKWsInQ?si=aSH57ndvFXAF3AdD'
         self.format_dict = {
             'type': None,
             'quality': None,
@@ -77,12 +78,20 @@ class FormatsMenu(QtWidgets.QWidget):
         self.ui.audioRadioButton.clicked.connect(self.audio)
 
         self.videoQualityButtons = [
+            self.ui.radio144,
+            self.ui.radio240,
+            self.ui.radio360,
+            self.ui.radio480,
             self.ui.radio720,
             self.ui.radio1080,
+            self.ui.radio1440,
+            self.ui.radio2160,
                         ]
 
         self.videoFormatsButtons = [
             self.ui.radioMP4,
+            self.ui.radioWEBM,
+            self.ui.radioAVI,
             self.ui.radioMOV
         ]
 
@@ -92,29 +101,39 @@ class FormatsMenu(QtWidgets.QWidget):
         ]
 
         self.audioQualityButtons = [
-            self.ui.radio192
+            self.ui.audioRadio128,
+            self.ui.audioRadio192
         ]
 
+        self.ui.radio2160.clicked.connect(lambda: (self.quality(2160), self.video))
+        self.ui.radio1440.clicked.connect(lambda: (self.quality(1440), self.video))
         self.ui.radio1080.clicked.connect(lambda: (self.quality(1080), self.video))
         self.ui.radio720.clicked.connect(lambda: (self.quality(720), self.video))
+        self.ui.radio480.clicked.connect(lambda: (self.quality(480), self.video))
+        self.ui.radio360.clicked.connect(lambda: (self.quality(360), self.video))
+        self.ui.radio240.clicked.connect(lambda: (self.quality(240), self.video))
+        self.ui.radio144.clicked.connect(lambda: (self.quality(144), self.video))
 
         self.ui.radioMP4.clicked.connect(lambda: (self.format('mp4'), self.video))
         self.ui.radioMOV.clicked.connect(lambda: (self.format('mov'), self.video))
+        self.ui.radioWEBM.clicked.connect(lambda: (self.format('webm'), self.video))
+        self.ui.radioAVI.clicked.connect(lambda: (self.format('avi'), self.video))
 
-        self.ui.radio192.clicked.connect(lambda: (self.quality(192), self.audio))
+        self.ui.audioRadio192.clicked.connect(lambda: (self.quality(192), self.audio))
+        self.ui.audioRadio128.clicked.connect(lambda: (self.quality(128), self.audio))
 
         self.ui.radioMP3.clicked.connect(lambda: (self.format('mp3'), self.audio))
         self.ui.radioWAV.clicked.connect(lambda: (self.format('wav'), self.audio))
 
-        self.ui.pushButton.clicked.connect(self.checkFields)
+        self.ui.downloadButton.clicked.connect(self.checkFields)
 
     def video(self):
         for radio in self.audioQualityButtons:
             radio.setEnabled(False)
-            self.format_dict['quality'] = None
+            #self.format_dict['quality'] = None
         for radio in self.audioFormatsButtons:
             radio.setEnabled(False)
-            self.format_dict['format'] = None
+            #self.format_dict['format'] = None
 
         for radio in self.videoQualityButtons:
             radio.setEnabled(True)
@@ -135,7 +154,10 @@ class FormatsMenu(QtWidgets.QWidget):
                 unchecked.append(self.translations[x])
         if not unchecked:
             pprint(self.format_dict)
-            pass
+            if self.format_dict['type'] == 'video':
+                YoutubeDownloader.DownloadVideo(self.url, self.format_dict["quality"], self.format_dict["format"])
+            elif self.format_dict['type'] == 'audio':
+                YoutubeDownloader.DownloadAudio(self.url, self.format_dict["quality"], self.format_dict["format"])
         else:
             QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Не добавлены поля {", ".join(unchecked)}')
 

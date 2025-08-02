@@ -36,26 +36,36 @@ class YoutubeDownloader:
         return name
 
     @staticmethod
-    def DownloadVideo(quality: int, url: str):
+    def DownloadVideo(url: str, quality: int, resolution: str):
         opts = {
-            'proxy': 'socks5://0.0.0.0:14228',
-            'format': f'bv*[height={quality}]+ba'
+            'proxy': 'socks5://0.0.0.0:14228',  # прокси-сервер
+            'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
+            'merge_output_format': resolution,
+            'outtmpl': '%(title)s'
         }
+
         with yt_dlp.YoutubeDL(opts) as ydl:
             try:
-                ydl.download(url)
+                ydl.download([url])
             except yt_dlp.utils.DownloadError:
-                print('fuck')
+                print("Ошибка скачивания")
 
     @staticmethod
-    def DownloadAudio(quality: int, url: str):
+    def DownloadAudio(url: str, quality: int, resolution: str):
         opts = {
             'proxy': 'socks5://0.0.0.0:14228',
-            'format': f'worstaudio/worst[ext=mp3][abr={quality}]'
+            'format': f'bestaudio/best[audio_bitrate={quality}k]',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': resolution,
+                'preferredquality': str(quality),
+            }],
+            'outtmpl': '%(title)s',
         }
+
         with yt_dlp.YoutubeDL(opts) as ydl:
             try:
-                ydl.download(url)
+                ydl.download([url])
             except yt_dlp.utils.DownloadError:
-                print('fuck')
+                print(f"Ошибка скачивания {url}")
 

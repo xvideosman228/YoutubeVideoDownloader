@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>526</width>
-    <height>350</height>
+    <width>326</width>
+    <height>460</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="downloadButton">
    <property name="geometry">
     <rect>
-     <x>210</x>
-     <y>300</y>
-     <width>100</width>
-     <height>38</height>
+     <x>0</x>
+     <y>400</y>
+     <width>321</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="text">
@@ -29,8 +29,8 @@
   <widget class="QFrame" name="typeFrame">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>20</y>
+     <x>30</x>
+     <y>10</y>
      <width>120</width>
      <height>80</height>
     </rect>
@@ -41,27 +41,14 @@
    <property name="frameShadow">
     <enum>QFrame::Shadow::Raised</enum>
    </property>
-   <widget class="QRadioButton" name="videoRadioButton">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>113</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Видео</string>
-    </property>
-   </widget>
   </widget>
   <widget class="QFrame" name="qualityFrame">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>110</y>
-     <width>351</width>
-     <height>80</height>
+     <x>0</x>
+     <y>50</y>
+     <width>521</width>
+     <height>191</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -74,20 +61,20 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
-      <width>113</width>
-      <height>25</height>
+      <y>90</y>
+      <width>111</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>720p</string>
+     <string>720p (HD)</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="radio192">
+   <widget class="QRadioButton" name="audioRadio192">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>10</y>
+      <x>200</x>
+      <y>70</y>
       <width>113</width>
       <height>25</height>
      </rect>
@@ -100,21 +87,112 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
+      <y>110</y>
+      <width>131</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1080p (Full HD)</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radio480">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>70</y>
       <width>113</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
-     <string>1080p</string>
+     <string>480p</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radio360">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>360p</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radio240">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>240p</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radio144">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>144p</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radio1440">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>130</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1440p (2K)</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radio2160">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>150</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>2160p (4K)</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="audioRadio128">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>50</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>128 kbps</string>
     </property>
    </widget>
   </widget>
   <widget class="QFrame" name="formatFrame">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>180</y>
+     <x>0</x>
+     <y>260</y>
      <width>351</width>
      <height>101</height>
     </rect>
@@ -128,7 +206,7 @@
    <widget class="QRadioButton" name="radioMP3">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>230</x>
       <y>20</y>
       <width>113</width>
       <height>25</height>
@@ -142,7 +220,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>20</y>
+      <y>40</y>
       <width>113</width>
       <height>25</height>
      </rect>
@@ -155,7 +233,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>50</y>
+      <y>60</y>
       <width>113</width>
       <height>25</height>
      </rect>
@@ -167,14 +245,40 @@
    <widget class="QRadioButton" name="radioWAV">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>50</y>
+      <x>230</x>
+      <y>40</y>
       <width>113</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
      <string>wav</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioWEBM">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>80</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>webm</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioAVI">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>20</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>avi</string>
     </property>
    </widget>
   </widget>
@@ -184,8 +288,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>230</x>
-     <y>40</y>
+     <x>200</x>
+     <y>10</y>
      <width>113</width>
      <height>25</height>
     </rect>
@@ -207,6 +311,19 @@
    </property>
    <property name="autoExclusive">
     <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="videoRadioButton">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>113</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Видео</string>
    </property>
   </widget>
  </widget>
