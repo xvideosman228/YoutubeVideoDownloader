@@ -1,69 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>YoutubeDownloader</class>
+ <widget class="QWidget" name="YoutubeDownloader">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>660</width>
-    <height>128</height>
+    <width>305</width>
+    <height>120</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>660</width>
-    <height>128</height>
+    <width>305</width>
+    <height>120</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>660</width>
-    <height>157</height>
+    <width>16777215</width>
+    <height>120</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Youtube Downloader</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <widget class="QLineEdit" name="lineEdit">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>10</y>
-      <width>581</width>
-      <height>41</height>
-     </rect>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>6</y>
+     <width>214</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>О программе</string>
     </property>
+    <addaction name="program"/>
+    <addaction name="author"/>
    </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>191</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>URL:</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>57</y>
-      <width>661</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Скачать</string>
-    </property>
-   </widget>
+   <addaction name="menu"/>
   </widget>
+  <widget class="QPushButton" name="downloadButton">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>81</y>
+     <width>293</width>
+     <height>33</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Скачать</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="address">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>42</y>
+     <width>293</width>
+     <height>33</height>
+    </rect>
+   </property>
+   <property name="placeholderText">
+    <string>Введи ссылку на видео/плейлист...</string>
+   </property>
+  </widget>
+  <action name="author">
+   <property name="text">
+    <string>О авторе</string>
+   </property>
+  </action>
+  <action name="program">
+   <property name="text">
+    <string>О программе</string>
+   </property>
+  </action>
  </widget>
+ <layoutdefault spacing="6" margin="6"/>
  <resources/>
  <connections/>
 </ui>

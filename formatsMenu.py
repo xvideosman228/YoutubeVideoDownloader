@@ -91,6 +91,10 @@ class Ui_Form(object):
         self.videoRadioButton = QtWidgets.QRadioButton(parent=Form)
         self.videoRadioButton.setGeometry(QtCore.QRect(10, 10, 113, 25))
         self.videoRadioButton.setObjectName("videoRadioButton")
+        self.progressBar = QtWidgets.QProgressBar(parent=Form)
+        self.progressBar.setGeometry(QtCore.QRect(10, 360, 321, 23))
+        self.progressBar.setProperty("value", 0)
+        self.progressBar.setObjectName("progressBar")
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)

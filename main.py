@@ -1,36 +1,111 @@
 import sys
 import re
 from pprint import pprint
+import json
+from io import BytesIO
+import humanize
+import requests
+import yt_dlp
+from PIL import Image
+import ffmpeg
 
 from PyQt6 import QtWidgets
 from PyQt6.QtGui import QImage, QPixmap
-from PyQt6.QtWidgets import QGraphicsScene, QMessageBox
-from PyQt6.uic.Compiler.qtproxies import QtGui
 
 import foundMenu
 import startMenu
 import formatsMenu
+import downloadMenu
 
-import youtubeParser
-from youtubeParser import YoutubeDownloader
+
+class YoutubeDownloader:
+    @staticmethod
+    def GetVideoInfo(url: str):
+        opts = {'proxy': 'socks5://0.0.0.0:14228'}
+        with yt_dlp.YoutubeDL(opts) as ydl, open('file.json', 'w', encoding='utf-8') as f:
+            info = ydl.extract_info(url, download=False)
+            ydl.sanitize_info(info)
+            json.dump(info, f, indent=4, ensure_ascii=False)
+        return info
+
+    @staticmethod
+    def DownloadThumbnail(url: str, name: str):
+        proxies = {
+            'http': 'socks5://0.0.0.0:14228',
+            'https': 'socks5://0.0.0.0:14228'
+        }
+
+        response = requests.get(url, proxies=proxies)
+
+        if response.status_code == 200:
+            image = Image.open(BytesIO(response.content))
+            image = image.resize([720,405])
+            image.save(f'{name}.png')
+        else:
+            print(f'Ошибка: {response.status_code}')
+
+        return name
+
+    @staticmethod
+    def DownloadVideo(url: str, quality: int, resolution: str):
+        opts = {
+            'proxy': 'socks5://0.0.0.0:14228',  # прокси-сервер
+            'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
+            'merge_output_format': resolution,
+            'outtmpl': '%(title)s',
+            'overwrites': True,
+            'progress_hooks': [lambda d: FormatsMenu.updateProgress(formats, d)],
+            'writethumbnail': True
+        }
+
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            try:
+                ydl.download([url])
+            except yt_dlp.utils.DownloadError:
+                print("Ошибка скачивания")
+
+    @staticmethod
+    def DownloadAudio(url: str, quality: int, resolution: str):
+        opts = {
+            'proxy': 'socks5://0.0.0.0:14228',
+            'format': f'bestaudio/best[audio_bitrate={quality}k]',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': resolution,
+                'preferredquality': str(quality),
+
+            },
+            {
+                    'key': 'EmbedThumbnail',
+                    'already_have_thumbnail': False
+            }],
+            'outtmpl': '%(title)s',
+            'writethumbnail': True
+        }
+
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            try:
+                ydl.download([url])
+            except yt_dlp.utils.DownloadError:
+                print(f"Ошибка скачивания {url}")
 
 
 class StartMenu(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
-        self.ui = startMenu.Ui_MainWindow()
+        self.ui = startMenu.Ui_YoutubeDownloader()
         self.ui.setupUi(self)
-        self.ui.pushButton.clicked.connect(self.found)
+        self.ui.downloadButton.clicked.connect(self.found)
 
     def found(self):
-        if self.ui.lineEdit.text() == '':
+        if self.ui.address.text() == '':
             QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Введи хоть какую-то ссылку')
             return
-        elif not(re.match("^(http(s)??\:\/\/)?(www\.)?((youtube\.com\/watch\?v=)|(youtu.be\/))([a-zA-Z0-9\-_])+" ,self.ui.lineEdit.text())):
+        elif not(re.match("^(http(s)??\:\/\/)?(www\.)?((youtube\.com\/watch\?v=)|(youtu.be\/))([a-zA-Z0-9\-_])+" ,self.ui.address.text())):
             QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Введи ютубовскую ссылку')
             return
 
-        self.data = youtubeParser.YoutubeDownloader.GetVideoInfo(self.ui.lineEdit.text())
+        self.data = YoutubeDownloader.GetVideoInfo(self.ui.address.text())
 
         self.title = self.data["title"]
         self.thumbnail_link = self.data["thumbnail"]
@@ -52,7 +127,7 @@ class StartMenu(QtWidgets.QMainWindow):
         found.ui.label_3.setPixmap(self.thumbnail)
 
         start.close()
-        formats.url = self.ui.lineEdit.text()
+        formats.url = self.ui.address.text()
         formats.show()
 
 
@@ -63,6 +138,15 @@ class FoundMenu(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = foundMenu.Ui_Form()
         self.ui.setupUi(self)
+
+class DownloadMenu(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        QtWidgets.QWidget.__init__(self, parent)
+        self.ui = downloadMenu.Ui_Form()
+        self.ui.setupUi(self)
+
+
+
 
 class FormatsMenu(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -135,6 +219,11 @@ class FormatsMenu(QtWidgets.QWidget):
 
         self.ui.downloadButton.clicked.connect(self.checkFields)
 
+    def updateProgress(self, d:dict):
+        self.ui.progressBar.setValue(int(d['_percent']))
+        print(d['_percent'])
+
+
     def video(self):
         for radio in self.audioQualityButtons:
             radio.setEnabled(False)
@@ -163,8 +252,11 @@ class FormatsMenu(QtWidgets.QWidget):
         if not unchecked:
             pprint(self.format_dict)
             if self.format_dict['type'] == 'video':
+                ...
                 YoutubeDownloader.DownloadVideo(self.url, self.format_dict["quality"], self.format_dict["format"])
+
             elif self.format_dict['type'] == 'audio':
+                ...
                 YoutubeDownloader.DownloadAudio(self.url, self.format_dict["quality"], self.format_dict["format"])
         else:
             QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Не добавлены поля {", ".join(unchecked)}')
@@ -199,6 +291,7 @@ if __name__ == "__main__":
     start = StartMenu()
     found = FoundMenu()
     formats = FormatsMenu()
+    download = DownloadMenu()
 
     start.show()
     sys.exit(app.exec())

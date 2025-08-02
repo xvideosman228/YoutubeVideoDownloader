@@ -9,30 +9,39 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(660, 128)
-        MainWindow.setMinimumSize(QtCore.QSize(660, 128))
-        MainWindow.setMaximumSize(QtCore.QSize(660, 157))
-        self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.lineEdit = QtWidgets.QLineEdit(parent=self.centralwidget)
-        self.lineEdit.setGeometry(QtCore.QRect(70, 10, 581, 41))
-        self.lineEdit.setObjectName("lineEdit")
-        self.label = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(10, 20, 191, 21))
-        self.label.setObjectName("label")
-        self.pushButton = QtWidgets.QPushButton(parent=self.centralwidget)
-        self.pushButton.setGeometry(QtCore.QRect(0, 57, 661, 71))
-        self.pushButton.setObjectName("pushButton")
-        MainWindow.setCentralWidget(self.centralwidget)
+class Ui_YoutubeDownloader(object):
+    def setupUi(self, YoutubeDownloader):
+        YoutubeDownloader.setObjectName("YoutubeDownloader")
+        YoutubeDownloader.resize(305, 120)
+        YoutubeDownloader.setMinimumSize(QtCore.QSize(305, 120))
+        YoutubeDownloader.setMaximumSize(QtCore.QSize(16777215, 120))
+        self.menuBar = QtWidgets.QMenuBar(parent=YoutubeDownloader)
+        self.menuBar.setGeometry(QtCore.QRect(6, 6, 214, 30))
+        self.menuBar.setObjectName("menuBar")
+        self.menu = QtWidgets.QMenu(parent=self.menuBar)
+        self.menu.setObjectName("menu")
+        self.downloadButton = QtWidgets.QPushButton(parent=YoutubeDownloader)
+        self.downloadButton.setGeometry(QtCore.QRect(6, 81, 293, 33))
+        self.downloadButton.setObjectName("downloadButton")
+        self.address = QtWidgets.QLineEdit(parent=YoutubeDownloader)
+        self.address.setGeometry(QtCore.QRect(6, 42, 293, 33))
+        self.address.setObjectName("address")
+        self.author = QtGui.QAction(parent=YoutubeDownloader)
+        self.author.setObjectName("author")
+        self.program = QtGui.QAction(parent=YoutubeDownloader)
+        self.program.setObjectName("program")
+        self.menu.addAction(self.program)
+        self.menu.addAction(self.author)
+        self.menuBar.addAction(self.menu.menuAction())
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(YoutubeDownloader)
+        QtCore.QMetaObject.connectSlotsByName(YoutubeDownloader)
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, YoutubeDownloader):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label.setText(_translate("MainWindow", "URL:"))
-        self.pushButton.setText(_translate("MainWindow", "Скачать"))
+        YoutubeDownloader.setWindowTitle(_translate("YoutubeDownloader", "Youtube Downloader"))
+        self.menu.setTitle(_translate("YoutubeDownloader", "О программе"))
+        self.downloadButton.setText(_translate("YoutubeDownloader", "Скачать"))
+        self.address.setPlaceholderText(_translate("YoutubeDownloader", "Введи ссылку на видео/плейлист..."))
+        self.author.setText(_translate("YoutubeDownloader", "О авторе"))
+        self.program.setText(_translate("YoutubeDownloader", "О программе"))
