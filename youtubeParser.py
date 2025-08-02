@@ -4,8 +4,7 @@ import humanize
 import requests
 import yt_dlp
 from PIL import Image
-
-from collections import defaultdict
+import ffmpeg
 
 class YoutubeDownloader:
     @staticmethod
@@ -41,7 +40,9 @@ class YoutubeDownloader:
             'proxy': 'socks5://0.0.0.0:14228',  # прокси-сервер
             'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
             'merge_output_format': resolution,
-            'outtmpl': '%(title)s'
+            'outtmpl': '%(title)s',
+            'overwrites': True,
+            'writethumbnail': True
         }
 
         with yt_dlp.YoutubeDL(opts) as ydl:
@@ -59,8 +60,14 @@ class YoutubeDownloader:
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': resolution,
                 'preferredquality': str(quality),
+
+            },
+            {
+                    'key': 'EmbedThumbnail',
+                    'already_have_thumbnail': False
             }],
             'outtmpl': '%(title)s',
+            'writethumbnail': True
         }
 
         with yt_dlp.YoutubeDL(opts) as ydl:

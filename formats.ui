@@ -187,6 +187,32 @@
      <string>128 kbps</string>
     </property>
    </widget>
+   <widget class="QRadioButton" name="audioRadio256">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>90</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>256 kbps</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="audioRadio64">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>30</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>64 kbps</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QFrame" name="formatFrame">
    <property name="geometry">
@@ -229,19 +255,6 @@
      <string>mp4</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="radioMOV">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>60</y>
-      <width>113</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>mov</string>
-    </property>
-   </widget>
    <widget class="QRadioButton" name="radioWAV">
     <property name="geometry">
      <rect>
@@ -259,26 +272,13 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>80</y>
+      <y>60</y>
       <width>113</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
      <string>webm</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioAVI">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>20</y>
-      <width>113</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>avi</string>
     </property>
    </widget>
   </widget>

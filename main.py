@@ -1,5 +1,5 @@
 import sys
-from email.utils import format_datetime
+import re
 from pprint import pprint
 
 from PyQt6 import QtWidgets
@@ -20,15 +20,22 @@ class StartMenu(QtWidgets.QMainWindow):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = startMenu.Ui_MainWindow()
         self.ui.setupUi(self)
-
         self.ui.pushButton.clicked.connect(self.found)
 
-    @staticmethod
-    def found():
-        # data = youtubeParser.YoutubeDownloader.GetVideoInfo('https://youtu.be/z0wK6s-6cbo?si=bnNta5oS9UKb2EAh')
+    def found(self):
+        if self.ui.lineEdit.text() == '':
+            QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Введи хоть какую-то ссылку')
+            return
+        elif not(re.match("^(http(s)??\:\/\/)?(www\.)?((youtube\.com\/watch\?v=)|(youtu.be\/))([a-zA-Z0-9\-_])+" ,self.ui.lineEdit.text())):
+            QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Введи ютубовскую ссылку')
+            return
 
-        #title = data["title"]
-        #thumbnail_link = data["thumbnail"]
+        self.data = youtubeParser.YoutubeDownloader.GetVideoInfo(self.ui.lineEdit.text())
+
+        self.title = self.data["title"]
+        self.thumbnail_link = self.data["thumbnail"]
+
+
 
         '''
         likes = data["like_count"]
@@ -38,13 +45,14 @@ class StartMenu(QtWidgets.QMainWindow):
         duration = data["duration_string"]
         '''
 
-        #thumbnail = YoutubeDownloader.DownloadThumbnail(thumbnail_link, data['title'])
-        #thumbnail = QPixmap(thumbnail)
+        self.thumbnail = YoutubeDownloader.DownloadThumbnail(self.thumbnail_link, self.data['title'])
+        self.thumbnail = QPixmap(self.thumbnail)
 
-        #found.ui.videoTitle.setText(title)
-        #found.ui.label_3.setPixmap(thumbnail)
+        found.ui.videoTitle.setText(self.title)
+        found.ui.label_3.setPixmap(self.thumbnail)
 
         start.close()
+        formats.url = self.ui.lineEdit.text()
         formats.show()
 
 
@@ -61,7 +69,7 @@ class FormatsMenu(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = formatsMenu.Ui_Form()
         self.ui.setupUi(self)
-        self.url = 'https://youtu.be/LXb3EKWsInQ?si=aSH57ndvFXAF3AdD'
+        self.url = ''
         self.format_dict = {
             'type': None,
             'quality': None,
@@ -91,8 +99,6 @@ class FormatsMenu(QtWidgets.QWidget):
         self.videoFormatsButtons = [
             self.ui.radioMP4,
             self.ui.radioWEBM,
-            self.ui.radioAVI,
-            self.ui.radioMOV
         ]
 
         self.audioFormatsButtons = [
@@ -101,7 +107,9 @@ class FormatsMenu(QtWidgets.QWidget):
         ]
 
         self.audioQualityButtons = [
+            self.ui.audioRadio64,
             self.ui.audioRadio128,
+            self.ui.audioRadio256,
             self.ui.audioRadio192
         ]
 
@@ -115,12 +123,12 @@ class FormatsMenu(QtWidgets.QWidget):
         self.ui.radio144.clicked.connect(lambda: (self.quality(144), self.video))
 
         self.ui.radioMP4.clicked.connect(lambda: (self.format('mp4'), self.video))
-        self.ui.radioMOV.clicked.connect(lambda: (self.format('mov'), self.video))
         self.ui.radioWEBM.clicked.connect(lambda: (self.format('webm'), self.video))
-        self.ui.radioAVI.clicked.connect(lambda: (self.format('avi'), self.video))
 
         self.ui.audioRadio192.clicked.connect(lambda: (self.quality(192), self.audio))
         self.ui.audioRadio128.clicked.connect(lambda: (self.quality(128), self.audio))
+        self.ui.audioRadio64.clicked.connect(lambda: (self.quality(64), self.audio))
+        self.ui.audioRadio256.clicked.connect(lambda: (self.quality(256), self.audio))
 
         self.ui.radioMP3.clicked.connect(lambda: (self.format('mp3'), self.audio))
         self.ui.radioWAV.clicked.connect(lambda: (self.format('wav'), self.audio))
