@@ -1,5 +1,6 @@
 import sys
 import re
+import datetime
 from pprint import pprint
 import json
 from io import BytesIO
@@ -17,6 +18,7 @@ import startMenu
 import formatsMenu
 import downloadMenu
 
+humanize.i18n.activate("ru_RU")
 
 class YoutubeDownloader:
     @staticmethod
@@ -221,6 +223,9 @@ class FormatsMenu(QtWidgets.QWidget):
 
     def updateProgress(self, d:dict):
         self.ui.progressBar.setValue(int(d['_percent']))
+        with open('asofasadsofd.json', 'w',encoding='utf-8') as f:
+            json.dump(d,f, indent=4, ensure_ascii=False)
+        self.ui.timeLeft.setText(humanize.precisedelta(datetime.timedelta(seconds=int(d['eta']))))
         print(d['_percent'])
 
 
