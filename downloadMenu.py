@@ -12,11 +12,11 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(400, 300)
-        self.progressBar = QtWidgets.QProgressBar(parent=Form)
-        self.progressBar.setGeometry(QtCore.QRect(60, 190, 321, 23))
-        self.progressBar.setProperty("value", 0)
-        self.progressBar.setObjectName("progressBar")
+        Form.resize(390, 90)
+        self.progressBar_2 = QtWidgets.QProgressBar(parent=Form)
+        self.progressBar_2.setGeometry(QtCore.QRect(40, 30, 321, 23))
+        self.progressBar_2.setProperty("value", 24)
+        self.progressBar_2.setObjectName("progressBar_2")
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)

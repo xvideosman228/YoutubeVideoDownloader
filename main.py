@@ -1,3 +1,5 @@
+import os
+import shutil
 import sys
 import re
 import datetime
@@ -11,6 +13,7 @@ from PIL import Image
 import ffmpeg
 
 from PyQt6 import QtWidgets
+from PyQt6.QtCore import QThread, pyqtSignal
 from PyQt6.QtGui import QImage, QPixmap
 
 import foundMenu
@@ -56,7 +59,7 @@ class YoutubeDownloader:
             'merge_output_format': resolution,
             'outtmpl': '%(title)s',
             'overwrites': True,
-            'progress_hooks': [lambda d: FormatsMenu.updateProgress(formats, d)],
+            'progress_hooks': [lambda d: formats.updateProgress(d)],
             'writethumbnail': True
         }
 
@@ -64,13 +67,14 @@ class YoutubeDownloader:
             try:
                 ydl.download([url])
             except yt_dlp.utils.DownloadError:
-                print("Ошибка скачивания")
+                QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
 
     @staticmethod
     def DownloadAudio(url: str, quality: int, resolution: str):
         opts = {
             'proxy': 'socks5://0.0.0.0:14228',
             'format': f'bestaudio/best[audio_bitrate={quality}k]',
+            'progress_hooks': [lambda d: formats.updateProgress(d)],
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': resolution,
@@ -89,7 +93,7 @@ class YoutubeDownloader:
             try:
                 ydl.download([url])
             except yt_dlp.utils.DownloadError:
-                print(f"Ошибка скачивания {url}")
+                QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
 
 
 class StartMenu(QtWidgets.QMainWindow):
@@ -100,17 +104,19 @@ class StartMenu(QtWidgets.QMainWindow):
         self.ui.downloadButton.clicked.connect(self.found)
 
     def found(self):
+
         if self.ui.address.text() == '':
             QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Введи хоть какую-то ссылку')
             return
         elif not(re.match("^(http(s)??\:\/\/)?(www\.)?((youtube\.com\/watch\?v=)|(youtu.be\/))([a-zA-Z0-9\-_])+" ,self.ui.address.text())):
             QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Введи ютубовскую ссылку')
             return
-
         self.data = YoutubeDownloader.GetVideoInfo(self.ui.address.text())
 
         self.title = self.data["title"]
         self.thumbnail_link = self.data["thumbnail"]
+
+        formats.metadata['title'] = self.title
 
 
 
@@ -128,11 +134,12 @@ class StartMenu(QtWidgets.QMainWindow):
         found.ui.videoTitle.setText(self.title)
         found.ui.label_3.setPixmap(self.thumbnail)
 
+
+        found.show()
+
         start.close()
         formats.url = self.ui.address.text()
-        formats.show()
-
-
+        #formats.show()
 
 
 class FoundMenu(QtWidgets.QWidget):
@@ -140,6 +147,11 @@ class FoundMenu(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = foundMenu.Ui_Form()
         self.ui.setupUi(self)
+        self.ui.pushButton.clicked.connect(self.formats)
+
+    def formats(self):
+        self.close()
+        formats.show()
 
 class DownloadMenu(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -159,7 +171,10 @@ class FormatsMenu(QtWidgets.QWidget):
         self.format_dict = {
             'type': None,
             'quality': None,
-            'format': None
+            'format': None,
+        }
+        self.metadata = {
+            'title': None
         }
 
         self.translations = {
@@ -221,13 +236,22 @@ class FormatsMenu(QtWidgets.QWidget):
 
         self.ui.downloadButton.clicked.connect(self.checkFields)
 
-    def updateProgress(self, d:dict):
-        self.ui.progressBar.setValue(int(d['_percent']))
-        with open('asofasadsofd.json', 'w',encoding='utf-8') as f:
-            json.dump(d,f, indent=4, ensure_ascii=False)
-        self.ui.timeLeft.setText(humanize.precisedelta(datetime.timedelta(seconds=int(d['eta']))))
-        print(d['_percent'])
 
+
+
+
+    def updateProgress(self, d: dict):
+        if d['status'] == 'downloading':
+            self.ui.progressBar.setValue(int(d['_percent']))
+            with open('asofasadsofd.json', 'w', encoding='utf-8') as f:
+                json.dump(d, f, indent=4, ensure_ascii=False)
+
+            if d['eta'] is not None:
+                ...
+                #self.ui.timeLeft.setText(humanize.precisedelta(datetime.timedelta(seconds=int(d['eta']))))
+
+        if d["status"] == 'finished':
+            ...
 
     def video(self):
         for radio in self.audioQualityButtons:
@@ -257,15 +281,19 @@ class FormatsMenu(QtWidgets.QWidget):
         if not unchecked:
             pprint(self.format_dict)
             if self.format_dict['type'] == 'video':
-                ...
+                #download.show()
                 YoutubeDownloader.DownloadVideo(self.url, self.format_dict["quality"], self.format_dict["format"])
 
+                filename = QtWidgets.QFileDialog.getSaveFileName(self, 'сохранить',f'{self.metadata['title']}.{self.format_dict["format"]}', "Видео (*.mp4, *.webm)")
+                print(filename)
+                shutil.move(f'{self.metadata['title']}.{self.format_dict["format"]}', filename[0])
             elif self.format_dict['type'] == 'audio':
-                ...
+                #download.show()
                 YoutubeDownloader.DownloadAudio(self.url, self.format_dict["quality"], self.format_dict["format"])
+
+                QtWidgets.QFileDialog.getSaveFileName()
         else:
             QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Не добавлены поля {", ".join(unchecked)}')
-
 
     def audio(self):
         for radio in self.videoQualityButtons:

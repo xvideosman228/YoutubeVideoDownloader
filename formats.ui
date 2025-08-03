@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Форматы</string>
   </property>
   <widget class="QPushButton" name="downloadButton">
    <property name="geometry">
@@ -336,7 +336,7 @@
     </rect>
    </property>
    <property name="value">
-    <number>24</number>
+    <number>0</number>
    </property>
   </widget>
   <widget class="QLabel" name="labelTimeLeft">
@@ -362,7 +362,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>time</string>
+    <string/>
    </property>
   </widget>
  </widget>

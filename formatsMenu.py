@@ -93,13 +93,14 @@ class Ui_Form(object):
         self.videoRadioButton.setObjectName("videoRadioButton")
         self.progressBar = QtWidgets.QProgressBar(parent=Form)
         self.progressBar.setGeometry(QtCore.QRect(10, 340, 321, 23))
-        self.progressBar.setProperty("value", 24)
+        self.progressBar.setProperty("value", 0)
         self.progressBar.setObjectName("progressBar")
         self.labelTimeLeft = QtWidgets.QLabel(parent=Form)
         self.labelTimeLeft.setGeometry(QtCore.QRect(10, 370, 141, 21))
         self.labelTimeLeft.setObjectName("labelTimeLeft")
         self.timeLeft = QtWidgets.QLabel(parent=Form)
         self.timeLeft.setGeometry(QtCore.QRect(200, 370, 67, 21))
+        self.timeLeft.setText("")
         self.timeLeft.setObjectName("timeLeft")
 
         self.retranslateUi(Form)
@@ -107,7 +108,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
+        Form.setWindowTitle(_translate("Form", "Форматы"))
         self.downloadButton.setText(_translate("Form", "Скачать"))
         self.radio720.setText(_translate("Form", "720p (HD)"))
         self.audioRadio192.setText(_translate("Form", "192 kbps"))
@@ -128,4 +129,3 @@ class Ui_Form(object):
         self.audioRadioButton.setText(_translate("Form", "Аудио"))
         self.videoRadioButton.setText(_translate("Form", "Видео"))
         self.labelTimeLeft.setText(_translate("Form", "Осталось времени"))
-        self.timeLeft.setText(_translate("Form", "time"))
