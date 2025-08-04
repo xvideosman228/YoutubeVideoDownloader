@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 import re
+import datetime
 from pprint import pprint
 import json
 from io import BytesIO
@@ -11,7 +12,7 @@ import yt_dlp
 from PIL import Image
 
 from PyQt6 import QtWidgets
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QDesktopServices
 
 import completedWindow
 import foundMenu
@@ -24,14 +25,18 @@ humanize.i18n.activate("ru_RU")
 class YoutubeDownloader:
     @staticmethod
     def GetVideoInfo(url: str):
-        opts = {
-            'proxy': 'socks5://0.0.0.0:14228'
-        }
-        with yt_dlp.YoutubeDL(opts) as ydl, open('file.json', 'w', encoding='utf-8') as f:
-            info = ydl.extract_info(url, download=False)
-            ydl.sanitize_info(info)
-            json.dump(info, f, indent=4, ensure_ascii=False)
-        return info
+        try:
+            opts = {
+                'proxy': 'socks5://0.0.0.0:14228'
+            }
+            with yt_dlp.YoutubeDL(opts) as ydl, open('file.json', 'w', encoding='utf-8') as f:
+                info = ydl.extract_info(url, download=False)
+                ydl.sanitize_info(info)
+                json.dump(info, f, indent=4, ensure_ascii=False)
+            return info
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(None, 'ахтунг', f'{e}')
+            print(e)
 
     @staticmethod
     def DownloadThumbnail(url: str, name: str):
@@ -73,7 +78,7 @@ class YoutubeDownloader:
                 QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
 
     @staticmethod
-    def DownloadAudio(url: str, quality: int, resolution: str):
+    def DownloadAudio(url: str, quality: int, resolution: str, output: str):
         opts = {
             'proxy': 'socks5://0.0.0.0:14228',
             'format': f'bestaudio/best[audio_bitrate={quality}k]',
@@ -88,7 +93,7 @@ class YoutubeDownloader:
                     'key': 'EmbedThumbnail',
                     'already_have_thumbnail': False
             }],
-            'outtmpl': '%(title)s',
+            'outtmpl': output,
             'writethumbnail': True
         }
 
@@ -133,19 +138,24 @@ class StartMenu(QtWidgets.QMainWindow):
         self.title = self.data["title"]
         self.thumbnail_link = self.data["thumbnail"]
 
+
         formats.metadata['title'] = self.title
 
 
 
-        '''
-        likes = data["like_count"]
-        views = data["view_count"]
-        duration = data["duration"]
-        timestamp = data["timestamp"]
-        duration = data["duration_string"]
-        '''
 
+        likes = self.data["like_count"]
+        views = self.data["view_count"]
+        duration = self.data["duration_string"]
+        timestamp = self.data["timestamp"]
+        #duration = self.data["duration_string"]
 
+        text = f'''Просмотры - {humanize.intword(views)}
+Лайки - {humanize.intword(likes)}
+Продолжительность - {duration}
+Дата публикации - {humanize.naturaltime(datetime.datetime.fromtimestamp(timestamp))}
+'''
+        found.ui.videoData.setText(text)
         self.thumbnail_image = YoutubeDownloader.DownloadThumbnail(self.thumbnail_link, self.data['title'])
         found.ui.videoTitle.setText(self.title)
         found.setWindowTitle(f'{self.title} - Youtube Downloader')
@@ -193,6 +203,8 @@ def mainMenu():
     sys.exit(0)
 
 
+
+
 class FormatsMenu(QtWidgets.QWidget):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
@@ -216,6 +228,7 @@ class FormatsMenu(QtWidgets.QWidget):
 
         self.ui.videoRadioButton.clicked.connect(self.video)
         self.ui.audioRadioButton.clicked.connect(self.audio)
+        self.ui.gifRadioButton.clicked.connect(self.gif)
 
         self.videoQualityButtons = [
             self.ui.radio144,
@@ -279,6 +292,20 @@ class FormatsMenu(QtWidgets.QWidget):
                 json.dump(d, f, indent=4, ensure_ascii=False)
             self.ui.progressBar.setValue(int(d['_percent']))
 
+    def gif(self):
+        for radio in self.audioQualityButtons:
+            radio.setEnabled(False)
+            #self.format_dict['quality'] = None
+        for radio in self.audioFormatsButtons:
+            radio.setEnabled(False)
+            #self.format_dict['format'] = None
+
+        for radio in self.videoQualityButtons:
+            radio.setEnabled(False)
+            self.format_dict['quality'] = None
+        for radio in self.videoFormatsButtons:
+            radio.setEnabled(False)
+            self.format_dict['format'] = None
 
     def video(self):
         for radio in self.audioQualityButtons:
@@ -325,32 +352,24 @@ class FormatsMenu(QtWidgets.QWidget):
                 else:
                     YoutubeDownloader.DownloadVideo(self.url, self.format_dict["quality"], self.format_dict["format"], filename[0])
                     #QtWidgets.QMessageBox.information(self, 'скачано', 'Видео скачано')
-                    self.createMsg()
-                    self.ui.progressBar.setValue(0)
-
-
 
             elif self.format_dict['type'] == 'audio':
-                pprint(self.format_dict)
                 filename = QtWidgets.QFileDialog.getSaveFileName(self, 'сохрани файл',
                                                                  f"~/{self.metadata['title']}.{self.format_dict['format']}",
-                                                                 "Видео (*.mp4, *.webm)")
-                YoutubeDownloader.DownloadVideo(self.url, self.format_dict["quality"], self.format_dict["format"],
+                                                                 "Аудио (*.mp3)")
+                YoutubeDownloader.DownloadAudio(self.url, self.format_dict["quality"], self.format_dict["format"],
                                                 filename[0])
-                self.createMsg()
-                self.ui.progressBar.setValue(0)
+
         else:
             QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Не добавлены поля {", ".join(unchecked)}')
-
-
+        self.createMsg()
+        self.ui.progressBar.setValue(0)
 
     def audio(self):
         for radio in self.videoQualityButtons:
             radio.setEnabled(False)
-            self.format_dict['quality'] = None
         for radio in self.videoFormatsButtons:
             radio.setEnabled(False)
-            self.format_dict['format'] = None
 
         for radio in self.audioQualityButtons:
             radio.setEnabled(True)

@@ -8,6 +8,7 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
@@ -28,15 +29,32 @@ class Ui_Form(object):
         self.videoTitle.setObjectName("videoTitle")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.ItemRole.FieldRole, self.videoTitle)
         self.verticalLayout.addWidget(self.widget, 0, QtCore.Qt.AlignmentFlag.AlignTop)
-        self.label_3 = QtWidgets.QLabel(parent=Form)
+        self.tabWidget = QtWidgets.QTabWidget(parent=Form)
+        self.tabWidget.setObjectName("tabWidget")
+        self.tab = QtWidgets.QWidget()
+        self.tab.setObjectName("tab")
+        self.gridLayout = QtWidgets.QGridLayout(self.tab)
+        self.gridLayout.setObjectName("gridLayout")
+        self.label_3 = QtWidgets.QLabel(parent=self.tab)
         self.label_3.setText("")
         self.label_3.setObjectName("label_3")
-        self.verticalLayout.addWidget(self.label_3)
+        self.gridLayout.addWidget(self.label_3, 0, 0, 1, 1)
+        self.tabWidget.addTab(self.tab, "")
+        self.tab_2 = QtWidgets.QWidget()
+        self.tab_2.setObjectName("tab_2")
+        self.formLayout_2 = QtWidgets.QFormLayout(self.tab_2)
+        self.formLayout_2.setObjectName("formLayout_2")
+        self.videoData = QtWidgets.QTextBrowser(parent=self.tab_2)
+        self.videoData.setObjectName("videoData")
+        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.ItemRole.SpanningRole, self.videoData)
+        self.tabWidget.addTab(self.tab_2, "")
+        self.verticalLayout.addWidget(self.tabWidget)
         self.pushButton = QtWidgets.QPushButton(parent=Form)
         self.pushButton.setObjectName("pushButton")
         self.verticalLayout.addWidget(self.pushButton)
 
         self.retranslateUi(Form)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
@@ -44,4 +62,6 @@ class Ui_Form(object):
         Form.setWindowTitle(_translate("Form", "Видео найдено"))
         self.label.setText(_translate("Form", "Найдено видео: "))
         self.videoTitle.setText(_translate("Form", "text"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Form", "Превью"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Form", "Информация о видео"))
         self.pushButton.setText(_translate("Form", "Перейти к выбору форматов"))

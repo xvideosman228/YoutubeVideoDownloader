@@ -13,8 +13,28 @@
   <property name="windowTitle">
    <string>Форматы</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="13" column="2" colspan="2">
+    <widget class="QWidget" name="widget_4" native="true">
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QPushButton" name="downloadButton">
+        <property name="text">
+         <string>Скачать</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="7" column="1" colspan="3">
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="4">
     <widget class="QFrame" name="typeFrame">
      <property name="frameShape">
       <enum>QFrame::Shape::StyledPanel</enum>
@@ -32,6 +52,20 @@
       </item>
       <item>
        <widget class="Line" name="line_6">
+        <property name="orientation">
+         <enum>Qt::Orientation::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item alignment="Qt::AlignmentFlag::AlignHCenter">
+       <widget class="QRadioButton" name="gifRadioButton">
+        <property name="text">
+         <string>GIF</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="line_8">
         <property name="orientation">
          <enum>Qt::Orientation::Vertical</enum>
         </property>
@@ -65,173 +99,16 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="1" column="0" colspan="4">
     <widget class="Line" name="line_4">
      <property name="orientation">
       <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QFrame" name="qualityFrame">
-     <property name="frameShape">
-      <enum>QFrame::Shape::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Shadow::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="1" alignment="Qt::AlignmentFlag::AlignRight">
-       <widget class="QRadioButton" name="audioRadio64">
-        <property name="text">
-         <string>64 kbps</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QRadioButton" name="radio240">
-        <property name="text">
-         <string>240p</string>
-        </property>
-       </widget>
-      </item>
-      <item row="15" column="0">
-       <widget class="QRadioButton" name="radio2160">
-        <property name="text">
-         <string>2160p (4K)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="0">
-       <widget class="QRadioButton" name="radio720">
-        <property name="text">
-         <string>720p (HD)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="1" alignment="Qt::AlignmentFlag::AlignRight">
-       <widget class="QRadioButton" name="audioRadio192">
-        <property name="text">
-         <string>192 kbps</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="0">
-       <widget class="QRadioButton" name="radio480">
-        <property name="text">
-         <string>480p</string>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="0">
-       <widget class="QRadioButton" name="radio1440">
-        <property name="text">
-         <string>1440p (2K)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="1" alignment="Qt::AlignmentFlag::AlignRight">
-       <widget class="QRadioButton" name="audioRadio128">
-        <property name="text">
-         <string>128 kbps</string>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="0">
-       <widget class="QRadioButton" name="radio1080">
-        <property name="text">
-         <string>1080p (Full HD)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="radio144">
-        <property name="text">
-         <string>144p</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="0">
-       <widget class="QRadioButton" name="radio360">
-        <property name="text">
-         <string>360p</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="Line" name="line_3">
-     <property name="orientation">
-      <enum>Qt::Orientation::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QFrame" name="formatFrame">
-     <property name="frameShape">
-      <enum>QFrame::Shape::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Shadow::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0" alignment="Qt::AlignmentFlag::AlignLeft">
-       <widget class="QRadioButton" name="radioMP4">
-        <property name="text">
-         <string>mp4</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" alignment="Qt::AlignmentFlag::AlignLeft">
-       <widget class="QRadioButton" name="radioWEBM">
-        <property name="text">
-         <string>webm</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2" alignment="Qt::AlignmentFlag::AlignRight">
-       <widget class="QRadioButton" name="radioWAV">
-        <property name="text">
-         <string>wav</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2" alignment="Qt::AlignmentFlag::AlignRight">
-       <widget class="QRadioButton" name="radioMP3">
-        <property name="text">
-         <string>mp3</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Orientation::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QProgressBar" name="progressBar">
-     <property name="value">
-      <number>0</number>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Orientation::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
+   <item row="9" column="0" colspan="4">
     <widget class="QWidget" name="widget" native="true">
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QLabel" name="labelTimeLeft">
         <property name="text">
@@ -249,15 +126,8 @@
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="Line" name="line_5">
-     <property name="orientation">
-      <enum>Qt::Orientation::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QWidget" name="widget_2" native="true">
+   <item row="11" column="3">
+    <widget class="QWidget" name="widget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <widget class="QLabel" name="labelDownload">
@@ -276,24 +146,168 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="12" column="0" rowspan="2" colspan="4">
     <widget class="Line" name="line_7">
      <property name="orientation">
       <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QWidget" name="widget_4" native="true">
-     <layout class="QGridLayout" name="gridLayout_3">
+   <item row="8" column="0" colspan="4">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" rowspan="2" colspan="4">
+    <widget class="Line" name="line_5">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QFrame" name="formatFrame">
+     <property name="frameShape">
+      <enum>QFrame::Shape::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
-       <widget class="QPushButton" name="downloadButton">
+       <widget class="QRadioButton" name="radioWEBM">
         <property name="text">
-         <string>Скачать</string>
+         <string>webm</string>
         </property>
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="6" column="0" rowspan="2" colspan="4">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="3">
+    <widget class="QRadioButton" name="radioMP3">
+     <property name="text">
+      <string>mp3</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="4">
+    <widget class="QFrame" name="qualityFrame">
+     <property name="frameShape">
+      <enum>QFrame::Shape::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="14" column="0">
+       <widget class="QRadioButton" name="radio1440">
+        <property name="text">
+         <string>1440p (2K)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="0">
+       <widget class="QRadioButton" name="radio720">
+        <property name="text">
+         <string>720p (HD)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QRadioButton" name="radio360">
+        <property name="text">
+         <string>360p</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="0">
+       <widget class="QRadioButton" name="radio480">
+        <property name="text">
+         <string>480p</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="radio144">
+        <property name="text">
+         <string>144p</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="1" alignment="Qt::AlignmentFlag::AlignRight">
+       <widget class="QRadioButton" name="audioRadio192">
+        <property name="text">
+         <string>192 kbps</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="radio240">
+        <property name="text">
+         <string>240p</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="0">
+       <widget class="QRadioButton" name="radio2160">
+        <property name="text">
+         <string>2160p (4K)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="0">
+       <widget class="QRadioButton" name="radio1080">
+        <property name="text">
+         <string>1080p (Full HD)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1" alignment="Qt::AlignmentFlag::AlignRight">
+       <widget class="QRadioButton" name="audioRadio128">
+        <property name="text">
+         <string>128 kbps</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" alignment="Qt::AlignmentFlag::AlignRight">
+       <widget class="QRadioButton" name="audioRadio64">
+        <property name="text">
+         <string>64 kbps</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="4">
+    <widget class="Line" name="line_3">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3">
+    <widget class="QRadioButton" name="radioWAV">
+     <property name="text">
+      <string>wav</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QRadioButton" name="radioMP4">
+     <property name="text">
+      <string>mp4</string>
+     </property>
     </widget>
    </item>
   </layout>
