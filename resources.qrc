@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>dialog-warning.svg</file>
+    <file>dialog-question.svg</file>
+    <file>dialog-positive.svg</file>
+    <file>dialog-information.svg</file>
+    <file>dialog-error.svg</file>
+  </qresource>
+</RCC>

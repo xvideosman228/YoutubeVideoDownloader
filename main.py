@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 import re
 from pprint import pprint
@@ -12,6 +13,7 @@ from PIL import Image
 from PyQt6 import QtWidgets
 from PyQt6.QtGui import QPixmap
 
+import completedWindow
 import foundMenu
 import startMenu
 import formatsMenu
@@ -96,6 +98,11 @@ class YoutubeDownloader:
             except yt_dlp.utils.DownloadError:
                 QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
 
+class CompletedWindow(QtWidgets.QMainWindow):
+    def __init__(self, parent=None):
+        QtWidgets.QWidget.__init__(self, parent)
+        self.ui = completedWindow.Ui_Form()
+        self.ui.setupUi(self)
 
 class StartMenu(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -103,6 +110,7 @@ class StartMenu(QtWidgets.QMainWindow):
         self.ui = startMenu.Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.downloadButton.clicked.connect(self.found)
+
 
     def found(self):
         if self.ui.address.text() == '':
@@ -117,7 +125,6 @@ class StartMenu(QtWidgets.QMainWindow):
                 return
             else:
                 pass
-
 
 
 
@@ -148,17 +155,19 @@ class StartMenu(QtWidgets.QMainWindow):
             self.thumbnail = QPixmap(self.thumbnail_image)
             found.ui.label_3.setPixmap(self.thumbnail)
             found.show()
-            start.close()
+            start.hide()
 
             os.remove(f'{self.thumbnail_image}.png')
         else:
             found.show()
-            start.close()
 
-    def updateLog(self, d:dict):
-        print('asdgfkgjdkgdg')
-        with open('asofasadsofdsfdfdofadsopkgdfskgdfkgdsgkopgkfkgofpkgofpkgofpkgffd.json', 'w', encoding='utf-8') as f:
-            json.dump(d, f, indent=4, ensure_ascii=False)
+        self.title = ''
+        self.thumbnail_link = ''
+        self.thumbnail_image = ''
+        self.thumbnail = ''
+        self.data = {}
+
+        start.hide()
 
 class FoundMenu(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -178,6 +187,10 @@ class DownloadMenu(QtWidgets.QWidget):
         self.ui.setupUi(self)
 
 
+def mainMenu():
+    print("Restarting program...")
+    subprocess.Popen([sys.executable] + sys.argv)
+    sys.exit(0)
 
 
 class FormatsMenu(QtWidgets.QWidget):
@@ -287,13 +300,23 @@ class FormatsMenu(QtWidgets.QWidget):
         self.ui.audioRadioButton.setChecked(False)
         self.format_dict['type'] = 'video'
 
+    def createMsg(self):
+        _translations = {'video': "Видео", 'audio': "Аудио"}
+        _title = _translations[self.format_dict['type']]
+        self.completed.ui.label.setText(f'{_title} было скачано')
+        self.completed.ui.mainMenu.clicked.connect(mainMenu)
+        self.completed.show()
+
     def checkFields(self):
         unchecked = []
         for x in self.format_dict:
             if self.format_dict[x] is None:
                 unchecked.append(self.translations[x])
+
+
         if not unchecked:
             pprint(self.format_dict)
+            self.completed = CompletedWindow()
             if self.format_dict['type'] == 'video':
                 filename = QtWidgets.QFileDialog.getSaveFileName(self, 'сохрани файл',
                     f"~/{self.metadata['title']}.{self.format_dict['format']}", "Видео (*.mp4, *.webm)")
@@ -301,8 +324,11 @@ class FormatsMenu(QtWidgets.QWidget):
                     QtWidgets.QMessageBox.warning(self, 'ахтунг', 'Введи хоть какое-то имя файла')
                 else:
                     YoutubeDownloader.DownloadVideo(self.url, self.format_dict["quality"], self.format_dict["format"], filename[0])
-                    QtWidgets.QMessageBox.information(self, 'скачано', 'Видео скачано')
-                    self.ui.progressBar.setValue('0')
+                    #QtWidgets.QMessageBox.information(self, 'скачано', 'Видео скачано')
+                    self.createMsg()
+                    self.ui.progressBar.setValue(0)
+
+
 
             elif self.format_dict['type'] == 'audio':
                 pprint(self.format_dict)
@@ -311,8 +337,8 @@ class FormatsMenu(QtWidgets.QWidget):
                                                                  "Видео (*.mp4, *.webm)")
                 YoutubeDownloader.DownloadVideo(self.url, self.format_dict["quality"], self.format_dict["format"],
                                                 filename[0])
-                QtWidgets.QMessageBox.information(self, 'скачано', 'Аудио скачано')
-                self.ui.progressBar.setValue('0')
+                self.createMsg()
+                self.ui.progressBar.setValue(0)
         else:
             QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Не добавлены поля {", ".join(unchecked)}')
 
