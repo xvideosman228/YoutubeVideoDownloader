@@ -1,11 +1,12 @@
 import os
-import subprocess
+import queue
 import sys
 import re
 import datetime
 from pprint import pprint
 import json
 from io import BytesIO
+
 import humanize
 import requests
 import yt_dlp
@@ -19,6 +20,9 @@ import foundMenu
 import startMenu
 import formatsMenu
 import downloadMenu
+
+import addFormat
+import addURL
 
 humanize.i18n.activate("ru_RU")
 
@@ -111,15 +115,30 @@ class CompletedWindow(QtWidgets.QMainWindow):
         self.ui = completedWindow.Ui_Form()
         self.ui.setupUi(self)
 
+class AddURL(QtWidgets.QMainWindow):
+    def __init__(self, parent=None):
+        QtWidgets.QWidget.__init__(self, parent)
+        self.ui = addURL.Ui_Form()
+        self.ui.setupUi(self)
+
+class AddFormat(QtWidgets.QMainWindow):
+    def __init__(self, parent=None):
+        QtWidgets.QWidget.__init__(self, parent)
+        self.ui = addFormat.Ui_Form()
+        self.ui.setupUi(self)
+
 class StartMenu(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = startMenu.Ui_MainWindow()
         self.ui.setupUi(self)
+        self.videoQueue = queue.Queue()
         self.ui.downloadButton.clicked.connect(self.found)
+        self.ui.addVideoToQueueButton.clicked.connect(self.addVideo)
 
+        self.new_video = {}
 
-    def found(self):
+    def checkLink(self):
         if self.ui.address.text() == '':
             QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Введи хоть что-то')
             self.ui.address.setText('')
@@ -133,7 +152,8 @@ class StartMenu(QtWidgets.QMainWindow):
             else:
                 pass
 
-
+    def found(self):
+        self.checkLink()
 
         self.data = YoutubeDownloader.GetVideoInfo(self.ui.address.text())
 
@@ -180,6 +200,135 @@ class StartMenu(QtWidgets.QMainWindow):
         self.data = {}
 
         start.hide()
+
+    def addVideo(self):
+        #addurl = AddURL()
+        addurl.show()
+        addurl.ui.nextButton.clicked.connect(self.addTitle)
+
+    def addTitle(self):
+        self.new_video['url'] = addurl.ui.url.text()
+        addurl.ui.url.setText('')
+        addurl.close()
+
+        self.metadata = YoutubeDownloader.GetVideoInfo(self.new_video['url'])
+        if self.metadata is None:
+            QtWidgets.QMessageBox.information(self, 'ахтунг', 'Какая-то хрень вместо ссылки')
+            return
+
+        self.filename = QtWidgets.QFileDialog.getSaveFileName(self, 'выбери имя файла и куда его сохранить',
+                    f"~/{self.metadata['title']}")
+        self.filename = self.filename[0]
+        self.addFormat()
+
+    def addFormat(self):
+        self.new_video['filename'] = self.filename
+        pprint(self.new_video)
+
+        addformat.show()
+        addformat.ui.videoRadioButton.clicked.connect(self.video)
+        addformat.ui.audioRadioButton.clicked.connect(self.audio)
+
+        self.format_dict = {
+            'type': None,
+            'quality': None,
+            'format': None,
+        }
+
+        self.videoQualityButtons = [
+            addformat.ui.radio144,
+            addformat.ui.radio240,
+            addformat.ui.radio360,
+            addformat.ui.radio480,
+            addformat.ui.radio720,
+            addformat.ui.radio1080,
+            addformat.ui.radio1440,
+            addformat.ui.radio2160,
+        ]
+
+        self.videoFormatsButtons = [
+            addformat.ui.radioMP4,
+            addformat.ui.radioWEBM,
+        ]
+
+        self.audioFormatsButtons = [
+            addformat.ui.radioMP3,
+            addformat.ui.radioWAV
+        ]
+
+        self.audioQualityButtons = [
+            addformat.ui.audioRadio64,
+            addformat.ui.audioRadio128,
+            addformat.ui.audioRadio192
+        ]
+
+        addformat.ui.radio2160.clicked.connect(lambda: (self.quality(2160), self.video))
+        addformat.ui.radio1440.clicked.connect(lambda: (self.quality(1440), self.video))
+        addformat.ui.radio1080.clicked.connect(lambda: (self.quality(1080), self.video))
+        addformat.ui.radio720.clicked.connect(lambda: (self.quality(720), self.video))
+        addformat.ui.radio480.clicked.connect(lambda: (self.quality(480), self.video))
+        addformat.ui.radio360.clicked.connect(lambda: (self.quality(360), self.video))
+        addformat.ui.radio240.clicked.connect(lambda: (self.quality(240), self.video))
+        addformat.ui.radio144.clicked.connect(lambda: (self.quality(144), self.video))
+
+        addformat.ui.radioMP4.clicked.connect(lambda: (self.format('mp4'), self.video))
+        addformat.ui.radioWEBM.clicked.connect(lambda: (self.format('webm'), self.video))
+
+        addformat.ui.audioRadio192.clicked.connect(lambda: (self.quality(192), self.audio))
+        addformat.ui.audioRadio128.clicked.connect(lambda: (self.quality(128), self.audio))
+        addformat.ui.audioRadio64.clicked.connect(lambda: (self.quality(64), self.audio))
+
+        addformat.ui.radioMP3.clicked.connect(lambda: (self.format('mp3'), self.audio))
+        addformat.ui.radioWAV.clicked.connect(lambda: (self.format('wav'), self.audio))
+
+        addformat.ui.ready.clicked.connect(self._addFormat)
+
+    def quality(self, quality: int):
+        self.format_dict['quality'] = quality
+
+    def format(self, format_: str):
+        self.format_dict['format'] = format_
+
+    def video(self):
+        for radio in self.audioQualityButtons:
+            radio.setEnabled(False)
+            # self.format_dict['quality'] = None
+        for radio in self.audioFormatsButtons:
+            radio.setEnabled(False)
+            # self.format_dict['format'] = None
+
+        for radio in self.videoQualityButtons:
+            radio.setEnabled(True)
+        for radio in self.videoFormatsButtons:
+            radio.setEnabled(True)
+
+        for x in self.format_dict:
+            self.format_dict[x] = None
+
+        addformat.ui.audioRadioButton.setChecked(False)
+        self.format_dict['type'] = 'video'
+
+    def audio(self):
+        for radio in self.videoQualityButtons:
+            radio.setEnabled(False)
+        for radio in self.videoFormatsButtons:
+            radio.setEnabled(False)
+
+        for radio in self.audioQualityButtons:
+            radio.setEnabled(True)
+        for radio in self.audioFormatsButtons:
+            radio.setEnabled(True)
+
+        addformat.ui.videoRadioButton.setChecked(False)
+        self.format_dict['type'] = 'audio'
+
+    def _addFormat(self):
+        self.new_video['format'] = self.format_dict
+        pprint(self.new_video)
+
+
+
+
 
 class FoundMenu(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -283,30 +432,9 @@ class FormatsMenu(QtWidgets.QWidget):
 
 
 
-    def updateProgress(self, d: dict):
-        if d['status'] == 'downloading':
-            #delta = datetime.timedelta(seconds=d['eta'])
-            #self.ui.timeLeft.setText(humanize.naturaldelta(delta))
-            #size = humanize.naturalsize(d['downloaded_bytes'])
-            #self.ui.downloaded.setText(f'{size} из ')
-            with open('asofasadsofd.json', 'w', encoding='utf-8') as f:
-                json.dump(d, f, indent=4, ensure_ascii=False)
-            self.ui.progressBar.setValue(int(d['_percent']))
 
-    def gif(self):
-        for radio in self.audioQualityButtons:
-            radio.setEnabled(False)
-            #self.format_dict['quality'] = None
-        for radio in self.audioFormatsButtons:
-            radio.setEnabled(False)
-            #self.format_dict['format'] = None
 
-        for radio in self.videoQualityButtons:
-            radio.setEnabled(False)
-            self.format_dict['quality'] = None
-        for radio in self.videoFormatsButtons:
-            radio.setEnabled(False)
-            self.format_dict['format'] = None
+
 
     def video(self):
         for radio in self.audioQualityButtons:
@@ -327,6 +455,42 @@ class FormatsMenu(QtWidgets.QWidget):
 
         self.ui.audioRadioButton.setChecked(False)
         self.format_dict['type'] = 'video'
+
+    def audio(self):
+        for radio in self.videoQualityButtons:
+            radio.setEnabled(False)
+        for radio in self.videoFormatsButtons:
+            radio.setEnabled(False)
+
+        for radio in self.audioQualityButtons:
+            radio.setEnabled(True)
+        for radio in self.audioFormatsButtons:
+            radio.setEnabled(True)
+
+        self.ui.videoRadioButton.setChecked(False)
+        self.format_dict['type'] = 'audio'
+
+    def gif(self):
+        for radio in self.audioQualityButtons:
+            radio.setEnabled(False)
+            #self.format_dict['quality'] = None
+        for radio in self.audioFormatsButtons:
+            radio.setEnabled(False)
+            #self.format_dict['format'] = None
+
+        for radio in self.videoQualityButtons:
+            radio.setEnabled(False)
+            self.format_dict['quality'] = None
+        for radio in self.videoFormatsButtons:
+            radio.setEnabled(False)
+            self.format_dict['format'] = None
+
+    def quality(self, quality: int):
+        self.format_dict['quality'] = quality
+
+    def format(self, format_: str):
+        self.format_dict['format'] = format_
+
 
     def createMsg(self):
         _translations = {'video': "Видео", 'audio': "Аудио"}
@@ -366,25 +530,16 @@ class FormatsMenu(QtWidgets.QWidget):
         self.createMsg()
         self.ui.progressBar.setValue(0)
 
-    def audio(self):
-        for radio in self.videoQualityButtons:
-            radio.setEnabled(False)
-        for radio in self.videoFormatsButtons:
-            radio.setEnabled(False)
+    def updateProgress(self, d: dict):
+        if d['status'] == 'downloading':
+            #delta = datetime.timedelta(seconds=d['eta'])
+            #self.ui.timeLeft.setText(humanize.naturaldelta(delta))
+            #size = humanize.naturalsize(d['downloaded_bytes'])
+            #self.ui.downloaded.setText(f'{size} из ')
+            with open('asofasadsofd.json', 'w', encoding='utf-8') as f:
+                json.dump(d, f, indent=4, ensure_ascii=False)
+            self.ui.progressBar.setValue(int(d['_percent']))
 
-        for radio in self.audioQualityButtons:
-            radio.setEnabled(True)
-        for radio in self.audioFormatsButtons:
-            radio.setEnabled(True)
-
-        self.ui.videoRadioButton.setChecked(False)
-        self.format_dict['type'] = 'audio'
-
-    def quality(self, quality: int):
-        self.format_dict['quality'] = quality
-
-    def format(self, format_: str):
-        self.format_dict['format'] = format_
 
 
 
@@ -394,6 +549,7 @@ if __name__ == "__main__":
     found = FoundMenu()
     formats = FormatsMenu()
     download = DownloadMenu()
-
+    addurl = AddURL(start)
+    addformat = AddFormat(start)
     start.show()
     sys.exit(app.exec())

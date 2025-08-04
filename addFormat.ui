@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>462</width>
+    <height>410</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QFrame" name="qualityFrame">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>58</y>
+     <width>450</width>
+     <height>210</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Shape::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Raised</enum>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_4">
+    <item row="1" column="0">
+     <widget class="QRadioButton" name="radio240">
+      <property name="text">
+       <string>240p</string>
+      </property>
+     </widget>
+    </item>
+    <item row="14" column="0">
+     <widget class="QRadioButton" name="radio1440">
+      <property name="text">
+       <string>1440p (2K)</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1" alignment="Qt::AlignmentFlag::AlignRight">
+     <widget class="QRadioButton" name="audioRadio64">
+      <property name="text">
+       <string>64 kbps</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="1" alignment="Qt::AlignmentFlag::AlignRight">
+     <widget class="QRadioButton" name="audioRadio128">
+      <property name="text">
+       <string>128 kbps</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="1" alignment="Qt::AlignmentFlag::AlignRight">
+     <widget class="QRadioButton" name="audioRadio192">
+      <property name="text">
+       <string>192 kbps</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="0">
+     <widget class="QRadioButton" name="radio360">
+      <property name="text">
+       <string>360p</string>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="0">
+     <widget class="QRadioButton" name="radio1080">
+      <property name="text">
+       <string>1080p (Full HD)</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QRadioButton" name="radio144">
+      <property name="text">
+       <string>144p</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="0">
+     <widget class="QRadioButton" name="radio480">
+      <property name="text">
+       <string>480p</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="0">
+     <widget class="QRadioButton" name="radio720">
+      <property name="text">
+       <string>720p (HD)</string>
+      </property>
+     </widget>
+    </item>
+    <item row="15" column="0">
+     <widget class="QRadioButton" name="radio2160">
+      <property name="text">
+       <string>2160p (4K)</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="Line" name="line">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>357</y>
+     <width>450</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Orientation::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="Line" name="line_4">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>49</y>
+     <width>450</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Orientation::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QFrame" name="formatFrame">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>314</y>
+     <width>80</width>
+     <height>37</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Shape::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Raised</enum>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QRadioButton" name="radioWEBM">
+      <property name="text">
+       <string>webm</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="Line" name="line_3">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>274</y>
+     <width>450</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Orientation::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QFrame" name="typeFrame">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>6</y>
+     <width>165</width>
+     <height>37</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Shape::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Raised</enum>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item alignment="Qt::AlignmentFlag::AlignLeft">
+     <widget class="QRadioButton" name="videoRadioButton">
+      <property name="text">
+       <string>Видео</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="Line" name="line_6">
+      <property name="orientation">
+       <enum>Qt::Orientation::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item alignment="Qt::AlignmentFlag::AlignRight">
+     <widget class="QRadioButton" name="audioRadioButton">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="mouseTracking">
+       <bool>false</bool>
+      </property>
+      <property name="tabletTracking">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Аудио</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
+      </property>
+      <property name="autoExclusive">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QRadioButton" name="radioMP4">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>283</y>
+     <width>56</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>mp4</string>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="radioWAV">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>283</y>
+     <width>52</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>wav</string>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="radioMP3">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>320</y>
+     <width>56</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>mp3</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="ready">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>366</y>
+     <width>84</width>
+     <height>38</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Готово!</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
