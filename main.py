@@ -27,12 +27,14 @@ class YoutubeDownloader:
     def GetVideoInfo(url: str):
         try:
             opts = {
-                'proxy': 'socks5://0.0.0.0:14228'
+                'proxy': 'socks5://0.0.0.0:14228',
+                'retries': 3,
+                'socket_timeout': 10,
+                'ignoreerrors': True
             }
-            with yt_dlp.YoutubeDL(opts) as ydl, open('file.json', 'w', encoding='utf-8') as f:
+            with yt_dlp.YoutubeDL(opts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 ydl.sanitize_info(info)
-                json.dump(info, f, indent=4, ensure_ascii=False)
             return info
         except Exception as e:
             QtWidgets.QMessageBox.critical(None, 'ахтунг', f'{e}')
@@ -198,9 +200,8 @@ class DownloadMenu(QtWidgets.QWidget):
 
 
 def mainMenu():
-    print("Restarting program...")
-    subprocess.Popen([sys.executable] + sys.argv)
-    sys.exit(0)
+    args = [sys.executable] + sys.argv
+    os.execv(sys.executable, args)
 
 
 
