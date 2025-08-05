@@ -87,6 +87,25 @@ class YoutubeDownloader:
                 QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
 
     @staticmethod
+    def DownloadVideoQueue(url: str, quality: int, resolution: str, output: str, index: int):
+        opts = {
+            'proxy': 'socks5://0.0.0.0:14228',  # прокси-сервер
+            'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
+            'merge_output_format': resolution,
+            'outtmpl': output,
+            'overwrites': True,
+            'progress_hooks': [lambda d: start.updateProgress(d, index)]
+            # 'writethumbnail': True
+        }
+
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            try:
+                ydl.download([url])
+            except yt_dlp.utils.DownloadError:
+                QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
+
+
+    @staticmethod
     def DownloadAudio(url: str, quality: int, resolution: str, output: str):
         opts = {
             'proxy': 'socks5://0.0.0.0:14228',
@@ -142,6 +161,7 @@ class StartMenu(QtWidgets.QMainWindow):
         self.ui.downloadAllQueueButton.clicked.connect(self.downloadVideoQueue)
 
         self.new_video = {
+            'index': 0,
             'url': None,
             'filename': None,
             'format': {}
@@ -253,7 +273,15 @@ class StartMenu(QtWidgets.QMainWindow):
 
     def downloadVideoQueue(self):
         for i in range(self.videoQueue.qsize()):
-            print(self.videoQueue.get())
+            item = self.videoQueue.get()
+            pprint(item)
+            YoutubeDownloader.DownloadVideoQueue(url=item['url'],
+                                                 quality=item['format']['quality'],
+                                                 resolution=item['format']['format'],
+                                                 output=item['filename'],
+                                                 index=item['index']
+                                                 )
+            self.ui.tableWidget.setItem(item['index'], 4, QtWidgets.QTableWidgetItem('На очереди'))
 
 
     def addFormat(self):
@@ -395,15 +423,15 @@ class StartMenu(QtWidgets.QMainWindow):
         self.new_video.update({
             'filename': self.filename,
             'format': self.format_dict.copy(),
+            'index': self.index
         })
 
         self.ui.tableWidget.insertRow(self.index)
         self.ui.tableWidget.setItem(self.index, 0, QtWidgets.QTableWidgetItem(self.metadata['title']))
         self.ui.tableWidget.setItem(self.index, 1, QtWidgets.QTableWidgetItem(self.new_video['url']))
         self.ui.tableWidget.setItem(self.index, 2, QtWidgets.QTableWidgetItem(self.new_video['filename']))
-        self.ui.tableWidget.setItem(self.index, 3, QtWidgets.QTableWidgetItem(self.new_video['format']['type']))
-        self.ui.tableWidget.setItem(self.index, 4, QtWidgets.QTableWidgetItem(self.new_video['format']['quality']))
-        self.ui.tableWidget.setItem(self.index, 5, QtWidgets.QTableWidgetItem(self.new_video['format']['format']))
+        self.ui.tableWidget.setItem(self.index, 3, QtWidgets.QTableWidgetItem(f'{self.new_video['format']['type']} - {self.new_video['format']['quality']} - {self.new_video['format']['format']}'))
+        self.ui.tableWidget.setItem(self.index, 4, QtWidgets.QTableWidgetItem('Простаивает'))
 
         self.index += 1
         self.ui.tableWidget.setRowCount(self.index)
@@ -426,6 +454,12 @@ class StartMenu(QtWidgets.QMainWindow):
             radio.setChecked(False)
         for radio in self.videoFormatsButtons:
             radio.setChecked(False)
+
+    def updateProgress(self, d: dict, index: int):
+        if d['status'] == 'downloading':
+            self.ui.tableWidget.setItem(index, 4, QtWidgets.QTableWidgetItem(str(int(d['_percent']))))
+        elif d['status'] == 'finished':
+            self.ui.tableWidget.setItem(index, 4, QtWidgets.QTableWidgetItem('Завершён'))
 
 
 class FoundMenu(QtWidgets.QWidget):
