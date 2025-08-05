@@ -39,6 +39,9 @@ class YoutubeDownloader:
             with yt_dlp.YoutubeDL(opts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 ydl.sanitize_info(info)
+                with open('file.json', 'w', encoding='utf-8') as f:
+                    json.dump(info, f, indent=4, ensure_ascii=False)
+
             return info
         except Exception as e:
             QtWidgets.QMessageBox.critical(None, 'ахтунг', f'{e}')
@@ -405,6 +408,7 @@ class StartMenu(QtWidgets.QMainWindow):
         self.index += 1
         self.ui.tableWidget.setRowCount(self.index)
         self.clearRadioButtons()
+        self.videoQueue.put(self.new_video)
         self.format_dict = {'video': None, 'audio': None}
         self.new_video = {'url': None, 'filename': None, 'format': {}}
         self.metadata = {}

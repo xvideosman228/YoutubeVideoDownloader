@@ -77,7 +77,7 @@ class Ui_MainWindow(object):
         self.tableWidget.horizontalHeader().setHighlightSections(True)
         self.tableWidget.horizontalHeader().setMinimumSectionSize(120)
         self.tableWidget.horizontalHeader().setSortIndicatorShown(False)
-        self.tableWidget.horizontalHeader().setStretchLastSection(True)
+        self.tableWidget.horizontalHeader().setStretchLastSection(False)
         self.tableWidget.verticalHeader().setCascadingSectionResizes(False)
         self.tableWidget.verticalHeader().setStretchLastSection(False)
         self.gridLayout_3.addWidget(self.tableWidget, 0, 0, 1, 1)
