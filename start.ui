@@ -68,7 +68,7 @@
            <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
           </property>
           <property name="dragEnabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="alternatingRowColors">
            <bool>false</bool>
@@ -89,7 +89,7 @@
            <bool>true</bool>
           </property>
           <property name="columnCount">
-           <number>4</number>
+           <number>6</number>
           </property>
           <attribute name="horizontalHeaderVisible">
            <bool>true</bool>
@@ -98,10 +98,10 @@
            <bool>false</bool>
           </attribute>
           <attribute name="horizontalHeaderMinimumSectionSize">
-           <number>150</number>
+           <number>120</number>
           </attribute>
           <attribute name="horizontalHeaderDefaultSectionSize">
-           <number>150</number>
+           <number>120</number>
           </attribute>
           <attribute name="horizontalHeaderHighlightSections">
            <bool>true</bool>
@@ -136,7 +136,17 @@
           </column>
           <column>
            <property name="text">
-            <string>Формат</string>
+            <string>Тип файла</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Качество</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Расширение</string>
            </property>
           </column>
           <item row="0" column="0">

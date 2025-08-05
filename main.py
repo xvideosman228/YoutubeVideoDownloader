@@ -140,11 +140,12 @@ class StartMenu(QtWidgets.QMainWindow):
 
         self.new_video = {
             'url': None,
-            'filename': None
-#            'format': {}
+            'filename': None,
+            'format': {}
         }
         self.index = 0
         self.ui.tableWidget.setRowCount(self.index)
+
 
     def checkLink(self):
         if self.ui.address.text() == '':
@@ -224,8 +225,6 @@ class StartMenu(QtWidgets.QMainWindow):
             pass
             return
         else:
-            #print(f'===={url}====')
-            #QtWidgets.QMessageBox.warning(self, 'ахтунг', 'Введи хоть что-то')
             return
 
 
@@ -241,41 +240,19 @@ class StartMenu(QtWidgets.QMainWindow):
                     f"~/{self.metadata['title']}")
         self.filename = self.filename[0]
         if self.filename:
-            self._addFormat()
+            #self._addFormat()
+            self.addFormat()
+            addformat.show()
             return
         else:
             self.ui.tableWidget.removeRow(self.index)
             return
-
-    def _addFormat(self):
-
-        self.new_video['filename'] = self.filename
-        pprint(self.new_video)
-
-        self.ui.tableWidget.setRowCount(self.index + 1)
-        self.ui.tableWidget.setItem(self.index, 0, QtWidgets.QTableWidgetItem(self.metadata['title']))
-        self.ui.tableWidget.setItem(self.index, 1, QtWidgets.QTableWidgetItem(self.new_video['url']))
-        self.ui.tableWidget.setItem(self.index, 2, QtWidgets.QTableWidgetItem(self.new_video['filename']))
-
-        self.index += 1
-        self.ui.tableWidget.setRowCount(self.index)
-
-
-        self.videoQueue.put(self.new_video)
-        self.new_video = {
-            'url': None,
-            'filename': None
-#            'format': {}
-        }
-        self.metadata = {}
 
     def downloadVideoQueue(self):
         for i in range(self.videoQueue.qsize()):
             print(self.videoQueue.get())
 
 
-
-'''
     def addFormat(self):
         self.new_video['filename'] = self.filename
         pprint(self.new_video)
@@ -314,15 +291,8 @@ class StartMenu(QtWidgets.QMainWindow):
         ]
 
 
-        for radio in self.audioQualityButtons:
-            radio.setEnabled(True)
-        for radio in self.audioFormatsButtons:
-            radio.setEnabled(True)
 
-        for radio in self.videoQualityButtons:
-            radio.setEnabled(True)
-        for radio in self.videoFormatsButtons:
-            radio.setEnabled(True)
+        self.clearRadioButtons()
 
         addformat.ui.radio2160.clicked.connect(lambda: (self.quality(2160), self.video))
         addformat.ui.radio1440.clicked.connect(lambda: (self.quality(1440), self.video))
@@ -386,20 +356,8 @@ class StartMenu(QtWidgets.QMainWindow):
 
     def _addFormat(self):
         self.checkFields()
-        self.new_video['format'] = self.format_dict
-        addformat.close()
-        self.videoQueue.put(self.new_video)
-        pprint(self.new_video)
-        self.format_dict = {
-            'type': None,
-            'quality': None,
-            'format': None,
-        }
-        self.new_video = {
-            'url': None,
-            'filename': None,
-            'format': self.format_dict
-        }
+
+
 
         for radio in self.audioQualityButtons:
             radio.setChecked(False)
@@ -413,28 +371,58 @@ class StartMenu(QtWidgets.QMainWindow):
         for radio in self.videoFormatsButtons:
             radio.setChecked(False)
 
-
     def checkFields(self):
+        """Проверка заполнения обязательных полей"""
         unchecked = []
-        self.translations = {'video': "Видео", 'audio': "Аудио"}
-        for x in self.format_dict:
-            if self.format_dict[x] is None:
-                unchecked.append(x)
+        translations = {'video': "Видео", 'audio': "Аудио"}
+        for field in self.format_dict:
+            if self.format_dict[field] is None:
+                unchecked.append(translations.get(field))
 
-
-        if not unchecked:
-            print('fadsdfdfdfd')
-            pprint(self.format_dict)
-            self.ui.tableWidget.setItem(self.videoQueue.qsize(), 0, QtWidgets.QTableWidgetItem(self.new_video['url']))
-            self.ui.tableWidget.setItem(self.videoQueue.qsize(), 1,
-                                        QtWidgets.QTableWidgetItem(self.new_video['filename']))
-            self.ui.tableWidget.setItem(self.videoQueue.qsize(), 2,
-                                        QtWidgets.QTableWidgetItem(','.join(list(self.new_video['format'].values()))))
-
+        if unchecked:
+            pass
+            '''QtWidgets.QMessageBox.warning(self, 'Ахтунг!',
+                                          f'Не выбраны поля: {", ".join(unchecked)}. Пожалуйста, выберите!')'''
         else:
-            print(unchecked)
-            QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Не добавлены поля {", ".join(unchecked)}')
-'''
+            # Добавляем запись в таблицу и обрабатываем её
+            self.addVideoToTable()
+
+    def addVideoToTable(self):
+        """Добавляет новую строку в таблицу с информацией о видео"""
+        self.new_video.update({
+            'filename': self.filename,
+            'format': self.format_dict.copy(),
+        })
+
+        self.ui.tableWidget.insertRow(self.index)
+        self.ui.tableWidget.setItem(self.index, 0, QtWidgets.QTableWidgetItem(self.metadata['title']))
+        self.ui.tableWidget.setItem(self.index, 1, QtWidgets.QTableWidgetItem(self.new_video['url']))
+        self.ui.tableWidget.setItem(self.index, 2, QtWidgets.QTableWidgetItem(self.new_video['filename']))
+        self.ui.tableWidget.setItem(self.index, 3, QtWidgets.QTableWidgetItem(self.new_video['format']['type']))
+        self.ui.tableWidget.setItem(self.index, 4, QtWidgets.QTableWidgetItem(self.new_video['format']['quality']))
+        self.ui.tableWidget.setItem(self.index, 5, QtWidgets.QTableWidgetItem(self.new_video['format']['format']))
+
+        self.index += 1
+        self.ui.tableWidget.setRowCount(self.index)
+        self.clearRadioButtons()
+        self.format_dict = {'video': None, 'audio': None}
+        self.new_video = {'url': None, 'filename': None, 'format': {}}
+        self.metadata = {}
+        self.title = ''
+        self.filename = ''
+        addformat.close()
+
+    def clearRadioButtons(self):
+        """Очистка выбранных радиобатонов"""
+        for radio in self.audioQualityButtons:
+            radio.setChecked(False)
+        for radio in self.audioFormatsButtons:
+            radio.setChecked(False)
+        for radio in self.videoQualityButtons:
+            radio.setChecked(False)
+        for radio in self.videoFormatsButtons:
+            radio.setChecked(False)
+
 
 class FoundMenu(QtWidgets.QWidget):
     def __init__(self, parent=None):
