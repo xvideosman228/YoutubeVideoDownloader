@@ -132,11 +132,19 @@ class StartMenu(QtWidgets.QMainWindow):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = startMenu.Ui_MainWindow()
         self.ui.setupUi(self)
-        self.videoQueue = queue.Queue()
+        self.videoQueue = queue.SimpleQueue()
+
         self.ui.downloadButton.clicked.connect(self.found)
         self.ui.addVideoToQueueButton.clicked.connect(self.addVideo)
+        self.ui.downloadAllQueueButton.clicked.connect(self.downloadVideoQueue)
 
-        self.new_video = {}
+        self.new_video = {
+            'url': None,
+            'filename': None
+#            'format': {}
+        }
+        self.index = 0
+        self.ui.tableWidget.setRowCount(self.index)
 
     def checkLink(self):
         if self.ui.address.text() == '':
@@ -202,39 +210,85 @@ class StartMenu(QtWidgets.QMainWindow):
         start.hide()
 
     def addVideo(self):
-        #addurl = AddURL()
         addurl.show()
         addurl.ui.nextButton.clicked.connect(self.addTitle)
 
     def addTitle(self):
-        self.new_video['url'] = addurl.ui.url.text()
-        addurl.ui.url.setText('')
-        addurl.close()
+        url = addurl.ui.url.text().strip()
+
+        if url:
+            self.new_video["url"] = url
+            addurl.close()
+            addurl.ui.url.setText("")
+        elif self.new_video["url"]:
+            pass
+            return
+        else:
+            #print(f'===={url}====')
+            #QtWidgets.QMessageBox.warning(self, 'ахтунг', 'Введи хоть что-то')
+            return
+
+
 
         self.metadata = YoutubeDownloader.GetVideoInfo(self.new_video['url'])
+
         if self.metadata is None:
             QtWidgets.QMessageBox.information(self, 'ахтунг', 'Какая-то хрень вместо ссылки')
+            # self.ui.tableWidget.removeRow(self.index)
             return
 
         self.filename = QtWidgets.QFileDialog.getSaveFileName(self, 'выбери имя файла и куда его сохранить',
                     f"~/{self.metadata['title']}")
         self.filename = self.filename[0]
-        self.addFormat()
+        if self.filename:
+            self._addFormat()
+            return
+        else:
+            self.ui.tableWidget.removeRow(self.index)
+            return
 
+    def _addFormat(self):
+
+        self.new_video['filename'] = self.filename
+        pprint(self.new_video)
+
+        self.ui.tableWidget.setRowCount(self.index + 1)
+        self.ui.tableWidget.setItem(self.index, 0, QtWidgets.QTableWidgetItem(self.metadata['title']))
+        self.ui.tableWidget.setItem(self.index, 1, QtWidgets.QTableWidgetItem(self.new_video['url']))
+        self.ui.tableWidget.setItem(self.index, 2, QtWidgets.QTableWidgetItem(self.new_video['filename']))
+
+        self.index += 1
+        self.ui.tableWidget.setRowCount(self.index)
+
+
+        self.videoQueue.put(self.new_video)
+        self.new_video = {
+            'url': None,
+            'filename': None
+#            'format': {}
+        }
+        self.metadata = {}
+
+    def downloadVideoQueue(self):
+        for i in range(self.videoQueue.qsize()):
+            print(self.videoQueue.get())
+
+
+
+'''
     def addFormat(self):
         self.new_video['filename'] = self.filename
         pprint(self.new_video)
 
-        addformat.show()
         addformat.ui.videoRadioButton.clicked.connect(self.video)
         addformat.ui.audioRadioButton.clicked.connect(self.audio)
+
 
         self.format_dict = {
             'type': None,
             'quality': None,
             'format': None,
         }
-
         self.videoQualityButtons = [
             addformat.ui.radio144,
             addformat.ui.radio240,
@@ -245,22 +299,30 @@ class StartMenu(QtWidgets.QMainWindow):
             addformat.ui.radio1440,
             addformat.ui.radio2160,
         ]
-
         self.videoFormatsButtons = [
             addformat.ui.radioMP4,
             addformat.ui.radioWEBM,
         ]
-
         self.audioFormatsButtons = [
             addformat.ui.radioMP3,
             addformat.ui.radioWAV
         ]
-
         self.audioQualityButtons = [
             addformat.ui.audioRadio64,
             addformat.ui.audioRadio128,
             addformat.ui.audioRadio192
         ]
+
+
+        for radio in self.audioQualityButtons:
+            radio.setEnabled(True)
+        for radio in self.audioFormatsButtons:
+            radio.setEnabled(True)
+
+        for radio in self.videoQualityButtons:
+            radio.setEnabled(True)
+        for radio in self.videoFormatsButtons:
+            radio.setEnabled(True)
 
         addformat.ui.radio2160.clicked.connect(lambda: (self.quality(2160), self.video))
         addformat.ui.radio1440.clicked.connect(lambda: (self.quality(1440), self.video))
@@ -284,7 +346,7 @@ class StartMenu(QtWidgets.QMainWindow):
         addformat.ui.ready.clicked.connect(self._addFormat)
 
     def quality(self, quality: int):
-        self.format_dict['quality'] = quality
+        self.format_dict['quality'] = str(quality)
 
     def format(self, format_: str):
         self.format_dict['format'] = format_
@@ -323,12 +385,56 @@ class StartMenu(QtWidgets.QMainWindow):
         self.format_dict['type'] = 'audio'
 
     def _addFormat(self):
+        self.checkFields()
         self.new_video['format'] = self.format_dict
+        addformat.close()
+        self.videoQueue.put(self.new_video)
         pprint(self.new_video)
+        self.format_dict = {
+            'type': None,
+            'quality': None,
+            'format': None,
+        }
+        self.new_video = {
+            'url': None,
+            'filename': None,
+            'format': self.format_dict
+        }
+
+        for radio in self.audioQualityButtons:
+            radio.setChecked(False)
+            # self.format_dict['quality'] = None
+        for radio in self.audioFormatsButtons:
+            radio.setChecked(False)
+            # self.format_dict['format'] = None
+
+        for radio in self.videoQualityButtons:
+            radio.setChecked(False)
+        for radio in self.videoFormatsButtons:
+            radio.setChecked(False)
 
 
+    def checkFields(self):
+        unchecked = []
+        self.translations = {'video': "Видео", 'audio': "Аудио"}
+        for x in self.format_dict:
+            if self.format_dict[x] is None:
+                unchecked.append(x)
 
 
+        if not unchecked:
+            print('fadsdfdfdfd')
+            pprint(self.format_dict)
+            self.ui.tableWidget.setItem(self.videoQueue.qsize(), 0, QtWidgets.QTableWidgetItem(self.new_video['url']))
+            self.ui.tableWidget.setItem(self.videoQueue.qsize(), 1,
+                                        QtWidgets.QTableWidgetItem(self.new_video['filename']))
+            self.ui.tableWidget.setItem(self.videoQueue.qsize(), 2,
+                                        QtWidgets.QTableWidgetItem(','.join(list(self.new_video['format'].values()))))
+
+        else:
+            print(unchecked)
+            QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Не добавлены поля {", ".join(unchecked)}')
+'''
 
 class FoundMenu(QtWidgets.QWidget):
     def __init__(self, parent=None):
