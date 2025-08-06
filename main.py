@@ -25,9 +25,27 @@ import downloadMenu
 import addFormat
 import addURL
 
-humanize.i18n.activate("ru_RU")
+# humanize.i18n.activate("ru_RU")
 
 class YoutubeDownloader:
+    @staticmethod
+    def GetChannelVideos(channel_url: str):
+        opts = {
+            'proxy': 'socks5://0.0.0.0:14228',
+            'extract_flat': True,
+            'ignoreerrors': True,
+            'quiet': True
+        }
+
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(channel_url, download=False)
+            result = {}
+            result['videos'] = [{'title': x['title'], 'url': x['url']} for x in info['entries']]
+            result['title'] = info['channel']
+            with open('channel.json', 'w', encoding='utf-8') as f:
+                json.dump(info, f, ensure_ascii=False, indent=4)
+        return result
+
     @staticmethod
     def GetVideoInfo(url: str):
         try:
@@ -40,9 +58,9 @@ class YoutubeDownloader:
             with yt_dlp.YoutubeDL(opts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 ydl.sanitize_info(info)
-                with open('file.json', 'w', encoding='utf-8') as f:
+                '''with open('file.json', 'w', encoding='utf-8') as f:
                     json.dump(info, f, indent=4, ensure_ascii=False)
-
+                '''
             return info
         except Exception as e:
             QtWidgets.QMessageBox.critical(None, 'ахтунг', f'{e}')
@@ -116,7 +134,7 @@ class YoutubeDownloader:
     @staticmethod
     def DownloadVideoQueue(url: str, quality: int, resolution: str, output: str, index: int):
         opts = {
-            'proxy': 'socks5://0.0.0.0:14228',  # прокси-сервер
+            'proxy': 'socks5://0.0.0.0:14228',
             'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
             'merge_output_format': resolution,
             'outtmpl': output,
@@ -184,11 +202,13 @@ class StartMenu(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.videoQueue = queue.SimpleQueue()
 
+
         self.completed = CompletedWindow()
 
         self.ui.downloadButton.clicked.connect(self.found)
         self.ui.addVideoToQueueButton.clicked.connect(self.addVideo)
         self.ui.downloadAllQueueButton.clicked.connect(self.downloadVideoQueue)
+        self.ui.findChannelButton.clicked.connect(self.extractVideosFromChannel)
 
         self.new_video = {
             'index': 0,
@@ -263,6 +283,26 @@ class StartMenu(QtWidgets.QMainWindow):
 
         start.hide()
 
+    def extractVideosFromChannel(self):
+        url = self.ui.channelURL.text().strip()
+        videos = YoutubeDownloader.GetChannelVideos(url)
+
+        videos_count = len(videos['videos'])
+        channel_title = videos['title']
+        for index, video in enumerate(videos['videos']):
+            title = video['title']
+            url = video['url']
+            print(f'{index} == {title} == {url}')
+            self.ui.channelTableVideos.insertRow(index)
+
+            self.ui.channelTableVideos.setItem(index, 0, QtWidgets.QTableWidgetItem(title))
+            self.ui.channelTableVideos.setItem(index, 1, QtWidgets.QTableWidgetItem(url))
+            QtWidgets.QApplication.processEvents()
+
+
+
+
+
     def addVideo(self):
         addurl.show()
         addurl.ui.nextButton.clicked.connect(self.addTitle)
@@ -302,6 +342,9 @@ class StartMenu(QtWidgets.QMainWindow):
             return
 
     def downloadVideoQueue(self):
+        if self.videoQueue.qsize() == 0:
+            QtWidgets.QMessageBox.warning(self, 'ахтунг', 'Ты хоть что-то добавь в очередь перед скачиванием')
+            return
         for i in range(self.videoQueue.qsize()):
             item = self.videoQueue.get()
             print(item['index'])
