@@ -70,6 +70,32 @@ class YoutubeDownloader:
             return None
 
     @staticmethod
+    def DownloadAudio(url: str, quality: int, resolution: str, output: str):
+        opts = {
+            'proxy': 'socks5://0.0.0.0:14228',
+            'format': f'bestaudio/best[audio_bitrate={quality}k]',
+            'progress_hooks': [lambda d: formats.updateProgress(d)],
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': resolution,
+                'preferredquality': str(quality),
+
+            },
+                {
+                    'key': 'EmbedThumbnail',
+                    'already_have_thumbnail': False
+                }],
+            'outtmpl': output,
+            'writethumbnail': True
+        }
+
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            try:
+                ydl.download([url])
+            except yt_dlp.utils.DownloadError:
+                QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
+
+    @staticmethod
     def DownloadVideo(url: str, quality: int, resolution: str, output: str):
         opts = {
             'proxy': 'socks5://0.0.0.0:14228',  # прокси-сервер
@@ -107,16 +133,15 @@ class YoutubeDownloader:
 
 
     @staticmethod
-    def DownloadAudio(url: str, quality: int, resolution: str, output: str):
+    def DownloadAudioQueue(url: str, quality: int, resolution: str, output: str, index: int):
         opts = {
             'proxy': 'socks5://0.0.0.0:14228',
             'format': f'bestaudio/best[audio_bitrate={quality}k]',
-            'progress_hooks': [lambda d: formats.updateProgress(d)],
+            'progress_hooks': [lambda d: start.updateProgress(d, index)],
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': resolution,
                 'preferredquality': str(quality),
-
             },
             {
                     'key': 'EmbedThumbnail',
@@ -131,6 +156,8 @@ class YoutubeDownloader:
                 ydl.download([url])
             except yt_dlp.utils.DownloadError:
                 QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
+
+
 
 class CompletedWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -156,6 +183,8 @@ class StartMenu(QtWidgets.QMainWindow):
         self.ui = startMenu.Ui_MainWindow()
         self.ui.setupUi(self)
         self.videoQueue = queue.SimpleQueue()
+
+        self.completed = CompletedWindow()
 
         self.ui.downloadButton.clicked.connect(self.found)
         self.ui.addVideoToQueueButton.clicked.connect(self.addVideo)
@@ -279,13 +308,25 @@ class StartMenu(QtWidgets.QMainWindow):
             self.ui.tableWidget.setItem(item['index'], 4, QtWidgets.QTableWidgetItem('На очереди'))
 
             QtWidgets.QApplication.processEvents()
-            YoutubeDownloader.DownloadVideoQueue(
-                url=item['url'],
-                quality=item['format']['quality'],
-                resolution=item['format']['format'],
-                output=item['filename'],
-                index=item['index']
-            )
+            if item['format']['type'] == 'video':
+                YoutubeDownloader.DownloadVideoQueue(
+                    url=item['url'],
+                    quality=item['format']['quality'],
+                    resolution=item['format']['format'],
+                    output=item['filename'],
+                    index=item['index']
+                )
+            elif item['format']['type'] == 'audio':
+                YoutubeDownloader.DownloadAudioQueue(
+                    url=item['url'],
+                    quality=item['format']['quality'],
+                    resolution=item['format']['format'],
+                    output=item['filename'],
+                    index=item['index']
+                )
+
+        self.createMsg()
+
 
 
 
@@ -463,10 +504,16 @@ class StartMenu(QtWidgets.QMainWindow):
     def updateProgress(self, d: dict, index: int):
         QtWidgets.QApplication.processEvents()
         if d['status'] == 'downloading':
-            percent_str = str(int(d['_percent'])) + '%'
+            percent_str = str(int(d['_percent'])) + '%' + ' загружено'
             self.ui.tableWidget.setItem(index, 4, QtWidgets.QTableWidgetItem(percent_str))
         elif d['status'] == 'finished':
             self.ui.tableWidget.setItem(index, 4, QtWidgets.QTableWidgetItem('Завершен'))
+
+    def createMsg(self):
+        self.completed.ui.label.setText(f'Все видео были скачаны!')
+        self.completed.ui.mainMenu.clicked.connect(mainMenu)
+        self.completed.show()
+
 
 class FoundMenu(QtWidgets.QWidget):
     def __init__(self, parent=None):
