@@ -3,6 +3,7 @@ import queue
 import sys
 import re
 import datetime
+import time
 from pprint import pprint
 import json
 from io import BytesIO
@@ -274,14 +275,18 @@ class StartMenu(QtWidgets.QMainWindow):
     def downloadVideoQueue(self):
         for i in range(self.videoQueue.qsize()):
             item = self.videoQueue.get()
-            pprint(item)
-            YoutubeDownloader.DownloadVideoQueue(url=item['url'],
-                                                 quality=item['format']['quality'],
-                                                 resolution=item['format']['format'],
-                                                 output=item['filename'],
-                                                 index=item['index']
-                                                 )
+            print(item['index'])
             self.ui.tableWidget.setItem(item['index'], 4, QtWidgets.QTableWidgetItem('На очереди'))
+
+            QtWidgets.QApplication.processEvents()
+            YoutubeDownloader.DownloadVideoQueue(
+                url=item['url'],
+                quality=item['format']['quality'],
+                resolution=item['format']['format'],
+                output=item['filename'],
+                index=item['index']
+            )
+
 
 
     def addFormat(self):
@@ -456,11 +461,12 @@ class StartMenu(QtWidgets.QMainWindow):
             radio.setChecked(False)
 
     def updateProgress(self, d: dict, index: int):
+        QtWidgets.QApplication.processEvents()
         if d['status'] == 'downloading':
-            self.ui.tableWidget.setItem(index, 4, QtWidgets.QTableWidgetItem(str(int(d['_percent']))))
+            percent_str = str(int(d['_percent'])) + '%'
+            self.ui.tableWidget.setItem(index, 4, QtWidgets.QTableWidgetItem(percent_str))
         elif d['status'] == 'finished':
-            self.ui.tableWidget.setItem(index, 4, QtWidgets.QTableWidgetItem('Завершён'))
-
+            self.ui.tableWidget.setItem(index, 4, QtWidgets.QTableWidgetItem('Завершен'))
 
 class FoundMenu(QtWidgets.QWidget):
     def __init__(self, parent=None):
