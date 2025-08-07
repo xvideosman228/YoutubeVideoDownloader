@@ -41,6 +41,7 @@ class YoutubeDownloader:
             info = ydl.extract_info(channel_url, download=False)
             result = {}
             result['videos'] = [{'title': x['title'], 'url': x['url']} for x in info['entries']]
+            result['videos'] = result['videos']
             result['title'] = info['channel']
 
             for index, video in enumerate(result['videos']):
@@ -328,8 +329,9 @@ class StartMenu(QtWidgets.QMainWindow):
     def downloadVideosFromChannel(self):
         if self._channel_video:
             for video in self._channel_video['videos']:
-
-                self.ui.tableWidget.setItem(video['index'] , 2, QtWidgets.QTableWidgetItem('На очереди'))
+                print(video['index'])
+                print(type(video['index']))
+                self.ui.channelTableVideos.setItem(video['index'] , 2, QtWidgets.QTableWidgetItem('На очереди'))
                 QtWidgets.QApplication.processEvents()
                 YoutubeDownloader.DownloadVideoFromChannel(video['url'],
                                                 720,
@@ -340,17 +342,15 @@ class StartMenu(QtWidgets.QMainWindow):
             QtWidgets.QMessageBox.warning(self, 'ахтунг', 'Тут пусто')
 
 
-
     def updateProgressChannel(self, d: dict, index: int):
         QtWidgets.QApplication.processEvents()
+        with open('p.json', 'w', encoding='utf-8') as f:
+            json.dump(d,f,indent=4, ensure_ascii=False)
         if d['status'] == 'downloading':
             percent_str = str(int(d['_percent'])) + '%' + ' загружено'
-            print(percent_str)
-            print(f' == == == == == {index}')
-            self.ui.tableWidget.setItem(index, 2, QtWidgets.QTableWidgetItem(percent_str))
+            self.ui.channelTableVideos.setItem(index, 2, QtWidgets.QTableWidgetItem(percent_str))
         elif d['status'] == 'finished':
-            self.ui.tableWidget.setItem(index, 2, QtWidgets.QTableWidgetItem('Завершен'))
-
+            self.ui.channelTableVideos.setItem(index, 2, QtWidgets.QTableWidgetItem('Завершен'))
 
     def addVideo(self):
         addurl.show()
