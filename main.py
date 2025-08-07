@@ -15,12 +15,14 @@ from PIL import Image
 
 from PyQt6 import QtWidgets
 from PyQt6.QtGui import QPixmap, QDesktopServices
+from PyQt6.QtWidgets import QDialog
 
 import completedWindow
 import foundMenu
 import startMenu
 import formatsMenu
 import downloadMenu
+import videoshorts
 
 import addFormat
 import addURL
@@ -40,9 +42,32 @@ class YoutubeDownloader:
         with yt_dlp.YoutubeDL(opts) as ydl:
             info = ydl.extract_info(channel_url, download=False)
             result = {}
-            result['videos'] = [{'title': x['title'], 'url': x['url']} for x in info['entries']]
-            result['videos'] = result['videos']
-            result['title'] = info['channel']
+            try:
+                result['videos'] = [{'title': x['title'], 'url': x['url']} for x in info['entries']]
+                result['videos'] = result['videos']
+                result['title'] = info['channel']
+            except KeyError:
+                dialog = VideoShorts()
+                dialog.show()
+                if dialog.response == 'video':
+                    channel_url += '/videos/'
+                    info = ydl.extract_info(channel_url, download=False)
+                    result = {}
+                    result['videos'] = [{'title': x['title'], 'url': x['url']} for x in info['entries']]
+                    result['videos'] = result['videos']
+                    result['title'] = info['channel']
+
+                elif dialog.response == 'shorts':
+                    channel_url += '/shorts/'
+                    info = ydl.extract_info(channel_url, download=False)
+                    result = {}
+                    result['videos'] = [{'title': x['title'], 'url': x['url']} for x in info['entries']]
+                    result['videos'] = result['videos']
+                    result['title'] = info['channel']
+                elif dialog.response == 'all':
+                    pass
+
+
 
             for index, video in enumerate(result['videos']):
                 print(video)
@@ -154,6 +179,7 @@ class YoutubeDownloader:
                 ydl.download([url])
             except yt_dlp.utils.DownloadError:
                 QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
+                start.ui.channelTableVideos.setItem(index, 2, "Ошибка")
 
     @staticmethod
     def DownloadVideoQueue(url: str, quality: int, resolution: str, output: str, index: int):
@@ -198,6 +224,34 @@ class YoutubeDownloader:
                 ydl.download([url])
             except yt_dlp.utils.DownloadError:
                 QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
+
+
+class VideoShorts(QDialog):
+    def __init__(self, parent=None):
+        QtWidgets.QWidget.__init__(self, parent)
+        self.ui = videoshorts.Ui_Dialog()
+        self.ui.setupUi(self)
+        self.response = ''
+        self.ui.downloadVideo.clicked.connect(self.downloadVideo)
+        self.ui.downloadShorts.clicked.connect(self.downloadShorts)
+        self.ui.downloadAll.clicked.connect(self.downloadAll)
+
+    def downloadVideo(self):
+        self.close()
+        self.response = 'video'
+
+
+    def downloadShorts(self):
+        self.close()
+        self.response = 'shorts'
+
+
+
+    def downloadAll(self):
+        self.close()
+        self.response = 'all'
+
+
 
 
 
@@ -321,6 +375,8 @@ class StartMenu(QtWidgets.QMainWindow):
             self.ui.channelTableVideos.setItem(video['index'], 0, QtWidgets.QTableWidgetItem(title))
             self.ui.channelTableVideos.setItem(video['index'], 1, QtWidgets.QTableWidgetItem(url))
             self.ui.channelTableVideos.setItem(video['index'], 2, QtWidgets.QTableWidgetItem('Простаивает'))
+            self.ui.channelTableVideos.setItem(video['index'], 3, QtWidgets.QTableWidgetItem('Не скачивается'))
+            self.ui.channelTableVideos.setItem(video['index'], 4, QtWidgets.QTableWidgetItem('Не скачивается'))
             QtWidgets.QApplication.processEvents()
 
         self._channel_video = videos
@@ -348,7 +404,12 @@ class StartMenu(QtWidgets.QMainWindow):
             json.dump(d,f,indent=4, ensure_ascii=False)
         if d['status'] == 'downloading':
             percent_str = str(int(d['_percent'])) + '%' + ' загружено'
+            #speed_str = str(int(d['speed'])) + '%' + ' загружено'
+            #eta_str = str(int(d['eta']))
+
             self.ui.channelTableVideos.setItem(index, 2, QtWidgets.QTableWidgetItem(percent_str))
+            #self.ui.channelTableVideos.setItem(index, 3, QtWidgets.QTableWidgetItem())
+            #self.ui.channelTableVideos.setItem(index, 4, QtWidgets.QTableWidgetItem(eta_str))
         elif d['status'] == 'finished':
             self.ui.channelTableVideos.setItem(index, 2, QtWidgets.QTableWidgetItem('Завершен'))
 
