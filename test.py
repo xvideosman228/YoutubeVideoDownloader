@@ -19,6 +19,11 @@ class YoutubeDownloader:
             result = {}
             result['videos'] = [{'title': x['title'], 'url': x['url']} for x in info['entries']]
             result['title'] = info['channel']
+
+            for index, video in enumerate(result['videos']):
+                print(video)
+                video['index'] = index
+
             with open('channel.json', 'w', encoding='utf-8') as f:
                 json.dump(info, f, ensure_ascii=False, indent=4)
         return result

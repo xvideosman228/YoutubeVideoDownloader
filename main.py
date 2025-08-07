@@ -42,6 +42,11 @@ class YoutubeDownloader:
             result = {}
             result['videos'] = [{'title': x['title'], 'url': x['url']} for x in info['entries']]
             result['title'] = info['channel']
+
+            for index, video in enumerate(result['videos']):
+                print(video)
+                video['index'] = index
+
             with open('channel.json', 'w', encoding='utf-8') as f:
                 json.dump(info, f, ensure_ascii=False, indent=4)
         return result
@@ -132,6 +137,24 @@ class YoutubeDownloader:
                 QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
 
     @staticmethod
+    def DownloadVideoFromChannel(url: str, quality: int, resolution: str, output: str, index: int):
+        opts = {
+            'proxy': 'socks5://0.0.0.0:14228',  # прокси-сервер
+            'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
+            'merge_output_format': resolution,
+            'outtmpl': output,
+            'overwrites': True,
+            'progress_hooks': [lambda d: start.updateProgressChannel(d, index)]
+            # 'writethumbnail': True
+        }
+
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            try:
+                ydl.download([url])
+            except yt_dlp.utils.DownloadError:
+                QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
+
+    @staticmethod
     def DownloadVideoQueue(url: str, quality: int, resolution: str, output: str, index: int):
         opts = {
             'proxy': 'socks5://0.0.0.0:14228',
@@ -202,13 +225,14 @@ class StartMenu(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.videoQueue = queue.SimpleQueue()
 
-
+        self._channel_video = {}
         self.completed = CompletedWindow()
 
         self.ui.downloadButton.clicked.connect(self.found)
         self.ui.addVideoToQueueButton.clicked.connect(self.addVideo)
         self.ui.downloadAllQueueButton.clicked.connect(self.downloadVideoQueue)
         self.ui.findChannelButton.clicked.connect(self.extractVideosFromChannel)
+        self.ui.downloadChannelButton.clicked.connect(self.downloadVideosFromChannel)
 
         self.new_video = {
             'index': 0,
@@ -286,21 +310,46 @@ class StartMenu(QtWidgets.QMainWindow):
     def extractVideosFromChannel(self):
         url = self.ui.channelURL.text().strip()
         videos = YoutubeDownloader.GetChannelVideos(url)
-
         videos_count = len(videos['videos'])
         channel_title = videos['title']
-        for index, video in enumerate(videos['videos']):
+        for video in videos['videos']:
             title = video['title']
             url = video['url']
-            print(f'{index} == {title} == {url}')
-            self.ui.channelTableVideos.insertRow(index)
+            self.ui.channelTableVideos.insertRow(video['index'])
 
-            self.ui.channelTableVideos.setItem(index, 0, QtWidgets.QTableWidgetItem(title))
-            self.ui.channelTableVideos.setItem(index, 1, QtWidgets.QTableWidgetItem(url))
+            self.ui.channelTableVideos.setItem(video['index'], 0, QtWidgets.QTableWidgetItem(title))
+            self.ui.channelTableVideos.setItem(video['index'], 1, QtWidgets.QTableWidgetItem(url))
+            self.ui.channelTableVideos.setItem(video['index'], 2, QtWidgets.QTableWidgetItem('Простаивает'))
             QtWidgets.QApplication.processEvents()
 
+        self._channel_video = videos
+        pprint(self._channel_video)
+
+    def downloadVideosFromChannel(self):
+        if self._channel_video:
+            for video in self._channel_video['videos']:
+
+                self.ui.tableWidget.setItem(video['index'] , 2, QtWidgets.QTableWidgetItem('На очереди'))
+                QtWidgets.QApplication.processEvents()
+                YoutubeDownloader.DownloadVideoFromChannel(video['url'],
+                                                720,
+                                                'mp4',
+                                                f'/home/fedor/PycharmProjects/YTDownloaderPyQt/testChannelVideos/{video['title']}',
+                                                video['index'])
+        else:
+            QtWidgets.QMessageBox.warning(self, 'ахтунг', 'Тут пусто')
 
 
+
+    def updateProgressChannel(self, d: dict, index: int):
+        QtWidgets.QApplication.processEvents()
+        if d['status'] == 'downloading':
+            percent_str = str(int(d['_percent'])) + '%' + ' загружено'
+            print(percent_str)
+            print(f' == == == == == {index}')
+            self.ui.tableWidget.setItem(index, 2, QtWidgets.QTableWidgetItem(percent_str))
+        elif d['status'] == 'finished':
+            self.ui.tableWidget.setItem(index, 2, QtWidgets.QTableWidgetItem('Завершен'))
 
 
     def addVideo(self):
@@ -556,6 +605,7 @@ class StartMenu(QtWidgets.QMainWindow):
         self.completed.ui.label.setText(f'Все видео были скачаны!')
         self.completed.ui.mainMenu.clicked.connect(mainMenu)
         self.completed.show()
+
 
 
 class FoundMenu(QtWidgets.QWidget):
