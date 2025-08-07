@@ -15,7 +15,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+    <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
        <number>1</number>
@@ -52,17 +52,7 @@
         <string>Скачать все видео с канала</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
-        <item row="0" column="0">
-         <widget class="QLineEdit" name="channelURL"/>
-        </item>
-        <item row="0" column="1">
-         <widget class="QPushButton" name="findChannelButton">
-          <property name="text">
-           <string>Искать</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="2">
+        <item row="1" column="0" colspan="3">
          <widget class="QTableWidget" name="channelTableVideos">
           <attribute name="horizontalHeaderDefaultSectionSize">
            <number>180</number>
@@ -97,10 +87,27 @@
           </column>
          </widget>
         </item>
-        <item row="2" column="0" colspan="2">
+        <item row="2" column="0" colspan="3">
          <widget class="QPushButton" name="downloadChannelButton">
           <property name="text">
            <string>Скачать</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLineEdit" name="channelURL"/>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="findChannelButton">
+          <property name="text">
+           <string>Искать</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="filterButton">
+          <property name="text">
+           <string>Добавить фильтр</string>
           </property>
          </widget>
         </item>
@@ -108,7 +115,7 @@
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>Очередь (скоро)</string>
+        <string>Очередь</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="2" column="0">
