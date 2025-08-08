@@ -3,7 +3,6 @@ import queue
 import sys
 import re
 import datetime
-import time
 from pprint import pprint
 import json
 from io import BytesIO
@@ -14,8 +13,7 @@ import yt_dlp
 from PIL import Image
 
 from PyQt6 import QtWidgets
-from PyQt6.QtCore import QEvent
-from PyQt6.QtGui import QPixmap, QDesktopServices
+from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QDialog, QFileDialog
 
 import completedWindow
@@ -29,6 +27,26 @@ import addFormat
 import addURL
 
 class YoutubeDownloader:
+    @staticmethod
+    def GetPlaylistVideos(url: str):
+        try:
+            ytdl_opts = {
+                'proxy': 'socks5://0.0.0.0:14228',
+                'extract_flat': 'in_playlist',
+                'cookiesfrombrowser': ('firefox', ),
+            }
+
+            with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
+                data = ydl.extract_info(url, download=False)
+                with open('playlist.json', 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=4, ensure_ascii=False)
+
+                for index, video in enumerate(data['entries']):
+                    video['index'] = index
+            return data
+        except Exception as e:
+            return None
+
     @staticmethod
     def GetChannelVideos(channel_url: str):
         opts = {
@@ -70,7 +88,8 @@ class YoutubeDownloader:
                 'proxy': 'socks5://0.0.0.0:14228',
                 'retries': 3,
                 'socket_timeout': 10,
-                'ignoreerrors': True
+                'ignoreerrors': True,
+                'noplaylist': True
             }
             with yt_dlp.YoutubeDL(opts) as ydl:
                 info = ydl.extract_info(url, download=False)
@@ -110,6 +129,7 @@ class YoutubeDownloader:
             'proxy': 'socks5://0.0.0.0:14228',
             'format': f'bestaudio/best[audio_bitrate={quality}k]',
             'progress_hooks': [lambda d: formats.updateProgress(d)],
+            'noplaylist': True,
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': resolution,
@@ -136,6 +156,7 @@ class YoutubeDownloader:
             'proxy': 'socks5://0.0.0.0:14228',  # прокси-сервер
             'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
             'merge_output_format': resolution,
+            'noplaylist': True,
             'outtmpl': output,
             'overwrites': True,
             'progress_hooks': [lambda d: formats.updateProgress(d)]
@@ -185,7 +206,7 @@ class YoutubeDownloader:
                 ydl.download([url])
             except yt_dlp.utils.DownloadError:
                 QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
-                start.ui.channelTableVideos.setItem(index, 2, "Ошибка")
+                start.ui.channelTableVideos.setItem(index, 2, QtWidgets.QTableWidgetItem('Ошибка'))
 
     @staticmethod
     def DownloadVideoQueue(url: str, quality: int, resolution: str, output: str, index: int):
@@ -193,6 +214,7 @@ class YoutubeDownloader:
             'proxy': 'socks5://0.0.0.0:14228',
             'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
             'merge_output_format': resolution,
+            'noplaylist': True,
             'outtmpl': output,
             'overwrites': True,
             'progress_hooks': [lambda d: start.updateProgress(d, index)]
@@ -212,6 +234,7 @@ class YoutubeDownloader:
             'proxy': 'socks5://0.0.0.0:14228',
             'format': f'bestaudio/best[audio_bitrate={quality}k]',
             'progress_hooks': [lambda d: start.updateProgress(d, index)],
+            'noplaylist': True,
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': resolution,
@@ -230,6 +253,8 @@ class YoutubeDownloader:
                 ydl.download([url])
             except yt_dlp.utils.DownloadError:
                 QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
+
+
 
 
 class VideoShorts(QDialog):
@@ -444,13 +469,14 @@ class StartMenu(QtWidgets.QMainWindow):
 
     def downloadPlaylist(self):
         if self._playlist_video:
+            directory = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
             for video in self._playlist_video['entries']:
                 self.ui.playlistTableWidget.setItem(video['index'] , 2, QtWidgets.QTableWidgetItem('На очереди'))
                 QtWidgets.QApplication.processEvents()
                 YoutubeDownloader.DownloadVideoPlaylist(video['url'],
                                                 720,
                                                 'mp4',
-                                                f'/home/fedor/PycharmProjects/YTDownloaderPyQt/testChannelVideos/{video['title']}',
+                                                f'{directory}/{video['title']}',
                                                 video['index'])
         else:
             QtWidgets.QMessageBox.warning(self, 'ахтунг', 'Тут пусто')
