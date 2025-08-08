@@ -14,16 +14,15 @@ from PIL import Image
 
 from PyQt6 import QtWidgets
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QDialog, QFileDialog
+from PyQt6.QtWidgets import QFileDialog
 
 import completedWindow
 import foundMenu
 import startMenu
 import formatsMenu
 import downloadMenu
-import videoshorts
 
-import addFormat
+from ui import addFormat
 import addURL
 
 with open('config.json', encoding='utf-8') as f:
@@ -32,6 +31,9 @@ with open('config.json', encoding='utf-8') as f:
 class YoutubeDownloader:
     @staticmethod
     def GetPlaylistVideos(url: str):
+        """Возвращает словарь с видео из плейлиста, если произошла ошибка - None
+
+        """
         try:
             ytdl_opts = {
                 'proxy': config['proxy'],
@@ -52,6 +54,9 @@ class YoutubeDownloader:
 
     @staticmethod
     def GetChannelVideos(channel_url: str):
+        """Получает видео с канала, если произошла ошибка - None
+        Returns a dict with channel videos, if the error happens - returns None
+        """
         opts = {
             'proxy': config['proxy'],
             'match_filter': lambda dic: print(dic),
@@ -86,6 +91,9 @@ class YoutubeDownloader:
 
     @staticmethod
     def GetVideoInfo(url: str):
+        """Получить информацию о видео
+        Get video's information
+        """
         try:
             opts = {
                 'proxy': config['proxy'],
@@ -107,6 +115,9 @@ class YoutubeDownloader:
 
     @staticmethod
     def DownloadThumbnail(url: str, name: str):
+        """Скачивает превью для отображения в меню Найдено видео
+        Downloads thumbnail for displaying it in the Found menu
+        """
         try:
             proxies = {
                 'http': config['proxy'],
@@ -128,6 +139,9 @@ class YoutubeDownloader:
 
     @staticmethod
     def DownloadAudio(url: str, quality: int | str, resolution: str, output: str):
+        """Скачивает аудио
+        Downloads an audio
+        """
         opts = {
             'proxy': config['proxy'],
             'format': f'bestaudio/best[audio_bitrate={quality}k]',
@@ -158,6 +172,9 @@ class YoutubeDownloader:
 
     @staticmethod
     def DownloadVideo(url: str, quality: int | str, resolution: str, output: str):
+        """Скачивает видео
+        Downloads a video
+        """
         opts = {
             'proxy': config['proxy'],  # прокси-сервер
             'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
@@ -180,6 +197,9 @@ class YoutubeDownloader:
 
     @staticmethod
     def DownloadVideoFromChannel(url: str, quality: int, resolution: str, output: str, index: int):
+        """Скачивает видео с канала
+        Downloads a video from channel
+        """
         opts = {
             'proxy': config['proxy'],
             'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
@@ -199,6 +219,9 @@ class YoutubeDownloader:
 
     @staticmethod
     def DownloadVideoPlaylist(url: str, quality: int, resolution: str, output: str, index: int):
+        """Скачивает плейлист
+        Downloads a playlists
+        """
         opts = {
             'proxy': config['proxy'],
             'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
@@ -218,6 +241,9 @@ class YoutubeDownloader:
 
     @staticmethod
     def DownloadVideoQueue(url: str, quality: int, resolution: str, output: str, index: int):
+        """Скачивает видео-очередь
+        Downloads video-queue
+        """
         opts = {
             'proxy': config['proxy'],
             'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
@@ -238,6 +264,9 @@ class YoutubeDownloader:
 
     @staticmethod
     def DownloadAudioQueue(url: str, quality: int, resolution: str, output: str, index: int):
+        """Скачивает аудио-очередь
+        Downloads audio-queue
+        """
         opts = {
             'proxy': config['proxy'],
             'format': f'bestaudio/best[audio_bitrate={quality}k]',
@@ -265,54 +294,37 @@ class YoutubeDownloader:
 
 
 
-class VideoShorts(QDialog):
-    def __init__(self, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
-        self.ui = videoshorts.Ui_Dialog()
-        self.ui.setupUi(self)
-        self.response = ''
-        self.ui.downloadVideo.clicked.connect(self.downloadVideo)
-        self.ui.downloadShorts.clicked.connect(self.downloadShorts)
-        self.ui.downloadAll.clicked.connect(self.downloadAll)
-
-    def downloadVideo(self):
-        self.close()
-        self.response = 'video'
-
-
-    def downloadShorts(self):
-        self.close()
-        self.response = 'shorts'
-
-
-
-    def downloadAll(self):
-        self.close()
-        self.response = 'all'
-
-
-
-
-
 class CompletedWindow(QtWidgets.QMainWindow):
+    """Класс завершённого окна
+    Class of the Completed window
+    """
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = completedWindow.Ui_Form()
         self.ui.setupUi(self)
 
 class AddURL(QtWidgets.QMainWindow):
+    """Окно "добавить ссылку" в очереди
+    Add URL window in queue
+    """
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = addURL.Ui_Form()
         self.ui.setupUi(self)
 
 class AddFormat(QtWidgets.QMainWindow):
+    """Окно "добавить формат" в очереди
+    Add Format Window in queue
+    """
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = addFormat.Ui_Form()
         self.ui.setupUi(self)
 
 class StartMenu(QtWidgets.QMainWindow):
+    """Стартовое окно
+    Start window
+    """
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = startMenu.Ui_MainWindow()
@@ -348,6 +360,9 @@ class StartMenu(QtWidgets.QMainWindow):
 
 
     def checkLink(self):
+        """Проверка ссылки, сайт это или нет
+        Checks whether it is a site or not
+        """
         if not(self.ui.address.text()):
             QtWidgets.QMessageBox.warning(self, 'ахтунг', f'Введи хоть что-то')
             self.ui.address.setText('')
@@ -362,6 +377,9 @@ class StartMenu(QtWidgets.QMainWindow):
             pass
 
     def found(self):
+        """Открытие окна Найдено видео
+        Opens Found video Window
+        """
         self.checkLink()
 
         self.data = YoutubeDownloader.GetVideoInfo(self.ui.address.text())
@@ -411,6 +429,9 @@ class StartMenu(QtWidgets.QMainWindow):
         start.hide()
 
     def extractVideosFromChannel(self):
+        """Находит и вставляет в таблицу видео с канала
+        Finds and pastes videos from channel into table
+        """
         url = self.ui.channelURL.text().strip()
         if url:
             pass
@@ -444,6 +465,9 @@ class StartMenu(QtWidgets.QMainWindow):
         pprint(self._channel_video)
 
     def downloadVideosFromChannel(self):
+        """Скачивает в таблицу видео с канала
+        Downloads a video from channel
+        """
         if self._channel_video:
             directory = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
             print(directory)
@@ -459,6 +483,9 @@ class StartMenu(QtWidgets.QMainWindow):
             QtWidgets.QMessageBox.warning(self, 'ахтунг', 'Тут пусто')
 
     def extractPlaylist(self):
+        """Находит и вставляет в таблицу видео с плейлиста
+        Finds and pastes videos from playlist into table
+        """
         url = self.ui.playlistAddress.text().strip()
         videos = YoutubeDownloader.GetPlaylistVideos(url)
         if videos is None:
@@ -476,6 +503,9 @@ class StartMenu(QtWidgets.QMainWindow):
 
 
     def downloadPlaylist(self):
+        """Скачивает видео из плейлиста
+        Downloads video from playlist
+        """
         if self._playlist_video:
             directory = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
             for video in self._playlist_video['entries']:
@@ -490,6 +520,9 @@ class StartMenu(QtWidgets.QMainWindow):
             QtWidgets.QMessageBox.warning(self, 'ахтунг', 'Тут пусто')
 
     def updateProgressPlaylist(self, d: dict, index: int):
+        """Хук для обновления процесса скачивания видео из плейлиста
+        Hook for updating downloading process from playlist
+        """
         QtWidgets.QApplication.processEvents()
         if d['status'] == 'downloading':
             percent_str = str(int(d['_percent'])) + '%' + ' загружено'
@@ -499,6 +532,8 @@ class StartMenu(QtWidgets.QMainWindow):
             self.ui.playlistTableWidget.setItem(index, 2, QtWidgets.QTableWidgetItem('Завершен'))
 
     def updateProgressChannel(self, d: dict, index: int):
+        """Хук для обновления процесса скачивания видео из канала
+        Hook for updating downloading process from channel"""
         QtWidgets.QApplication.processEvents()
         with open('p.json', 'w', encoding='utf-8') as f:
             json.dump(d,f,indent=4, ensure_ascii=False)
@@ -514,10 +549,17 @@ class StartMenu(QtWidgets.QMainWindow):
             self.ui.channelTableVideos.setItem(index, 2, QtWidgets.QTableWidgetItem('Завершен'))
 
     def addVideo(self):
+        """Вызывает окно с вводом URL при добавлении видео в очередь
+        Shows a window with URL input
+        """
         addurl.show()
         addurl.ui.nextButton.clicked.connect(self.addTitle)
+        addurl.ui.cancelButton.clicked.connect(lambda: addurl.close())
 
     def addTitle(self):
+        """Вызывает окно с вводом названия файла при добавлении видео в очередь
+        Shows a window with file name input
+        """
         url = addurl.ui.url.text().strip()
 
         if url:
@@ -552,6 +594,9 @@ class StartMenu(QtWidgets.QMainWindow):
             return
 
     def downloadVideoQueue(self):
+        """Скачивает видео-очередь
+        Downloads video-queue
+        """
         if self.videoQueue.qsize() == 0:
             QtWidgets.QMessageBox.warning(self, 'ахтунг', 'Ты хоть что-то добавь в очередь перед скачиванием')
             return
@@ -584,6 +629,9 @@ class StartMenu(QtWidgets.QMainWindow):
 
 
     def addFormat(self):
+        """Вызывает окно с выбором формата при добавлении видео в очередь
+        Shows Choose Format window on adding video to queue
+        """
         self.new_video['filename'] = self.filename
         pprint(self.new_video)
 
@@ -646,12 +694,21 @@ class StartMenu(QtWidgets.QMainWindow):
         addformat.ui.ready.clicked.connect(self._addFormat)
 
     def quality(self, quality: int):
+        """Сохраняет качество
+        Saves quality
+        """
         self.format_dict['quality'] = str(quality)
 
     def format(self, format_: str):
+        """Сохраняет расширение
+        Saves extension
+        """
         self.format_dict['format'] = format_
 
     def video(self):
+        """Отключает аудио-кнопки при нажатии кнопки Видео
+        Turns off audio-buttons
+        """
         for radio in self.audioQualityButtons:
             radio.setEnabled(False)
             # self.format_dict['quality'] = None
@@ -671,6 +728,9 @@ class StartMenu(QtWidgets.QMainWindow):
         self.format_dict['type'] = 'video'
 
     def audio(self):
+        """Отключает видео-кнопки при нажатии кнопки Аудио
+        Turns off video-buttons
+        """
         for radio in self.videoQualityButtons:
             radio.setEnabled(False)
         for radio in self.videoFormatsButtons:
@@ -685,6 +745,9 @@ class StartMenu(QtWidgets.QMainWindow):
         self.format_dict['type'] = 'audio'
 
     def _addFormat(self):
+        """Возвращает меню формата в исходное состояние
+        Return Format menu to default
+        """
         self.checkFields()
 
 
@@ -702,7 +765,9 @@ class StartMenu(QtWidgets.QMainWindow):
             radio.setChecked(False)
 
     def checkFields(self):
-        """Проверка заполнения обязательных полей"""
+        """Проверка заполнения обязательных полей
+        Check fields, that needs
+        """
         unchecked = []
         translations = {'video': "Видео", 'audio': "Аудио"}
         for field in self.format_dict:
@@ -718,7 +783,9 @@ class StartMenu(QtWidgets.QMainWindow):
             self.addVideoToTable()
 
     def addVideoToTable(self):
-        """Добавляет новую строку в таблицу с информацией о видео"""
+        """Добавляет новую строку в таблицу с информацией о видео
+        Add video-data to table
+        """
         self.new_video.update({
             'filename': self.filename,
             'format': self.format_dict.copy(),
@@ -744,7 +811,8 @@ class StartMenu(QtWidgets.QMainWindow):
         addformat.close()
 
     def clearRadioButtons(self):
-        """Очистка выбранных радиобатонов"""
+        """Очистка галочек
+        Clears radiobuuttons"""
         for radio in self.audioQualityButtons:
             radio.setChecked(False)
         for radio in self.audioFormatsButtons:
@@ -755,6 +823,8 @@ class StartMenu(QtWidgets.QMainWindow):
             radio.setChecked(False)
 
     def updateProgress(self, d: dict, index: int):
+        """Хук для обновления процесса скачивания видео-очереди
+        Hook for updating downloading process from video queue"""
         QtWidgets.QApplication.processEvents()
         if d['status'] == 'downloading':
             percent_str = str(int(d['_percent'])) + '%' + ' загружено'
@@ -763,6 +833,9 @@ class StartMenu(QtWidgets.QMainWindow):
             self.ui.tableWidget.setItem(index, 4, QtWidgets.QTableWidgetItem('Завершен'))
 
     def createMsg(self):
+        """Сообщение, что всё скачалось
+        Creates the Completed message
+        """
         self.completed.ui.label.setText(f'Все видео были скачаны!')
         self.completed.ui.mainMenu.clicked.connect(mainMenu)
         self.completed.show()
@@ -777,10 +850,16 @@ class FoundMenu(QtWidgets.QWidget):
         self.ui.pushButton.clicked.connect(self.formats)
 
     def formats(self):
+        """Открывает меню форматов после Найдено видео
+        Opens Format menu after Found menu
+        """
         self.close()
         formats.show()
 
 class DownloadMenu(QtWidgets.QWidget):
+    """Заброшено: меню для отображения прогресса (сейчас оно в FormatsMenu)
+    Deprecated: progess menu (now it is in the Formats menu)
+    """
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = downloadMenu.Ui_Form()
@@ -788,6 +867,9 @@ class DownloadMenu(QtWidgets.QWidget):
 
 
 def mainMenu():
+    """Перезагружает программу
+    Reloads the app
+    """
     args = [sys.executable] + sys.argv
     os.execv(sys.executable, args)
 
@@ -796,6 +878,9 @@ def mainMenu():
 
 class FormatsMenu(QtWidgets.QWidget):
     def __init__(self, parent=None):
+        """Тут задаются все категории кнопок
+        All button categories generated here
+        """
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = formatsMenu.Ui_Form()
         self.ui.setupUi(self)
@@ -886,6 +971,9 @@ class FormatsMenu(QtWidgets.QWidget):
 
 
     def video(self):
+        """Отключает аудио-кнопки при нажатии кнопки Видео
+        Turns off audio-buttons
+        """
         for radio in self.audioQualityButtons:
             radio.setEnabled(False)
             #self.format_dict['quality'] = None
@@ -906,6 +994,7 @@ class FormatsMenu(QtWidgets.QWidget):
         self.format_dict['type'] = 'video'
 
     def audio(self):
+        """Отключает видео-кнопки при нажатии кнопки Аудио"""
         for radio in self.videoQualityButtons:
             radio.setEnabled(False)
         for radio in self.videoFormatsButtons:
@@ -920,6 +1009,9 @@ class FormatsMenu(QtWidgets.QWidget):
         self.format_dict['type'] = 'audio'
 
     def gif(self):
+        """Заброшено: Отключает все кнопки при нажатии кнопки GIF
+        Deprecated: Turns off all buttons
+        """
         for radio in self.audioQualityButtons:
             radio.setEnabled(False)
             #self.format_dict['quality'] = None
@@ -935,13 +1027,22 @@ class FormatsMenu(QtWidgets.QWidget):
             self.format_dict['format'] = None
 
     def quality(self, quality: int | str):
+        """Сохраняет качество
+        Saves quality
+        """
         self.format_dict['quality'] = quality
 
     def format(self, format_: str):
+        """Сохраняет расширение
+        Saves format
+        """
         self.format_dict['format'] = format_
 
 
     def createMsg(self):
+        """Выводит сообщение о том, что всё скачано
+        Creates message, that all videos were been downloaded
+        """
         _translations = {'video': "Видео", 'audio': "Аудио"}
         _title = _translations[self.format_dict['type']]
         self.completed.ui.label.setText(f'{_title} было скачано')
@@ -949,6 +1050,9 @@ class FormatsMenu(QtWidgets.QWidget):
         self.completed.show()
 
     def checkFields(self):
+        """Проверяет заполненность полей и скачивает видео/аудио
+        Check fields
+        """
         unchecked = []
         for x in self.format_dict:
             if self.format_dict[x] is None:
@@ -980,6 +1084,8 @@ class FormatsMenu(QtWidgets.QWidget):
         self.ui.progressBar.setValue(0)
 
     def updateProgress(self, d: dict):
+        """Хук для обновления процесса скачивания видео
+        Hook for updating downloading process """
         if d['status'] == 'downloading':
             #delta = datetime.timedelta(seconds=d['eta'])
             #self.ui.timeLeft.setText(humanize.naturaldelta(delta))
