@@ -47,6 +47,52 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_4">
+       <attribute name="title">
+        <string>Скачать плейлист</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="0" column="1">
+         <widget class="QPushButton" name="findPlaylistButton">
+          <property name="text">
+           <string>Искать</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLineEdit" name="playlistAddress"/>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QTableWidget" name="playlistTableWidget">
+          <attribute name="horizontalHeaderDefaultSectionSize">
+           <number>200</number>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>Название</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>URL</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Статус</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QPushButton" name="downloadPlaylistButton">
+          <property name="text">
+           <string>Скачать</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
         <string>Скачать все видео с канала</string>

@@ -2,29 +2,20 @@ import json
 from pprint import pprint
 
 import yt_dlp
-from typing import List
 
-class YoutubeDownloader:
-    @staticmethod
-    def GetChannelVideos(channel_url: str) -> List[str]:
-        opts = {
-            'proxy': 'socks5://0.0.0.0:14228',
-            'extract_flat': True,
-            'ignoreerrors': True,
-            'quiet': True
-        }
+playlist_url = 'https://www.youtube.com/watch?v=w6-6XHnmFtI&list=OLAK5uy_nBSbfYLKH_2c6COOTd0nlj8ilv-HE03CI'
 
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(channel_url, download=False)
-            result = {}
-            result['videos'] = [{'title': x['title'], 'url': x['url']} for x in info['entries']]
-            result['title'] = info['channel']
+ytdl_opts = {
+    'proxy': 'socks5://0.0.0.0:14228',
+    'extract_flat': 'in_playlist',
 
-            for index, video in enumerate(result['videos']):
-                print(video)
-                video['index'] = index
+}
 
-            with open('channel.json', 'w', encoding='utf-8') as f:
-                json.dump(info, f, ensure_ascii=False, indent=4)
-        return result
-pprint(YoutubeDownloader.GetChannelVideos('https://www.youtube.com/@SHAPKA99'))
+with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
+    data = ydl.extract_info(playlist_url, download=False)
+    print(f'==={data['title']}===')
+    with open('playlist.json', 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+    for video in data['entries']:
+        print(f'{video['title']} == {video['url']}')
