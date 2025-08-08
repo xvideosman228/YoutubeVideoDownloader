@@ -24,7 +24,6 @@ import startMenu
 import formatsMenu
 import downloadMenu
 import videoshorts
-import filtersMenu
 
 import addFormat
 import addURL
@@ -153,12 +152,31 @@ class YoutubeDownloader:
     @staticmethod
     def DownloadVideoFromChannel(url: str, quality: int, resolution: str, output: str, index: int):
         opts = {
-            'proxy': 'socks5://0.0.0.0:14228',  # прокси-сервер
+            'proxy': 'socks5://0.0.0.0:14228',
             'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
             'merge_output_format': resolution,
             'outtmpl': output,
             'overwrites': True,
             'progress_hooks': [lambda d: start.updateProgressChannel(d, index)]
+            # 'writethumbnail': True
+        }
+
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            try:
+                ydl.download([url])
+            except yt_dlp.utils.DownloadError:
+                QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
+                start.ui.channelTableVideos.setItem(index, 2, "Ошибка")
+
+    @staticmethod
+    def DownloadVideoPlaylist(url: str, quality: int, resolution: str, output: str, index: int):
+        opts = {
+            'proxy': 'socks5://0.0.0.0:14228',
+            'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
+            'merge_output_format': resolution,
+            'outtmpl': output,
+            'overwrites': True,
+            'progress_hooks': [lambda d: start.updateProgressPlaylist(d, index)]
             # 'writethumbnail': True
         }
 
@@ -270,7 +288,11 @@ class StartMenu(QtWidgets.QMainWindow):
 
         self._filters = {}
         self._channel_video = {}
+        self._playlist_video = {}
         self.completed = CompletedWindow()
+
+        self.ui.findPlaylistButton.clicked.connect(self.extractPlaylist)
+        self.ui.downloadPlaylistButton.clicked.connect(self.downloadPlaylist)
 
         self._max_length_video_channel = 0.0
         self._videos_count = 0
@@ -370,7 +392,7 @@ class StartMenu(QtWidgets.QMainWindow):
             return
         self._videos_count = len(videos['videos'])
         channel_title = videos['title']
-        #self._max_length_video_channel = max([x['duration'] for x in videos['videos']])
+        self._max_length_video_channel = max([x['duration'] for x in videos['videos']])
         print(self._max_length_video_channel)
 
 
@@ -403,6 +425,44 @@ class StartMenu(QtWidgets.QMainWindow):
         else:
             QtWidgets.QMessageBox.warning(self, 'ахтунг', 'Тут пусто')
 
+    def extractPlaylist(self):
+        url = self.ui.playlistAddress.text().strip()
+        videos = YoutubeDownloader.GetPlaylistVideos(url)
+        if videos is None:
+            QtWidgets.QMessageBox.warning(self, 'ахтунг', 'Не получилось достать видео')
+            return
+
+        for video in videos['entries']:
+            self.ui.playlistTableWidget.insertRow(video['index'])
+            self.ui.playlistTableWidget.setItem(video['index'], 0, QtWidgets.QTableWidgetItem(video['title']))
+            self.ui.playlistTableWidget.setItem(video['index'], 1, QtWidgets.QTableWidgetItem(video['url']))
+            self.ui.playlistTableWidget.setItem(video['index'], 2, QtWidgets.QTableWidgetItem('Простаивает'))
+            QtWidgets.QApplication.processEvents()
+
+        self._playlist_video = videos
+
+
+    def downloadPlaylist(self):
+        if self._playlist_video:
+            for video in self._playlist_video['entries']:
+                self.ui.playlistTableWidget.setItem(video['index'] , 2, QtWidgets.QTableWidgetItem('На очереди'))
+                QtWidgets.QApplication.processEvents()
+                YoutubeDownloader.DownloadVideoPlaylist(video['url'],
+                                                720,
+                                                'mp4',
+                                                f'/home/fedor/PycharmProjects/YTDownloaderPyQt/testChannelVideos/{video['title']}',
+                                                video['index'])
+        else:
+            QtWidgets.QMessageBox.warning(self, 'ахтунг', 'Тут пусто')
+
+    def updateProgressPlaylist(self, d: dict, index: int):
+        QtWidgets.QApplication.processEvents()
+        if d['status'] == 'downloading':
+            percent_str = str(int(d['_percent'])) + '%' + ' загружено'
+
+            self.ui.playlistTableWidget.setItem(index, 2, QtWidgets.QTableWidgetItem(percent_str))
+        elif d['status'] == 'finished':
+            self.ui.playlistTableWidget.setItem(index, 2, QtWidgets.QTableWidgetItem('Завершен'))
 
     def updateProgressChannel(self, d: dict, index: int):
         QtWidgets.QApplication.processEvents()
