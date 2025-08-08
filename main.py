@@ -26,12 +26,15 @@ import videoshorts
 import addFormat
 import addURL
 
+with open('config.json', encoding='utf-8') as f:
+    config = json.load(f)
+
 class YoutubeDownloader:
     @staticmethod
     def GetPlaylistVideos(url: str):
         try:
             ytdl_opts = {
-                'proxy': 'socks5://0.0.0.0:14228',
+                'proxy': config['proxy'],
                 'extract_flat': 'in_playlist',
                 'cookiesfrombrowser': ('firefox', ),
             }
@@ -50,7 +53,7 @@ class YoutubeDownloader:
     @staticmethod
     def GetChannelVideos(channel_url: str):
         opts = {
-            'proxy': 'socks5://0.0.0.0:14228',
+            'proxy': config['proxy'],
             'match_filter': lambda dic: print(dic),
             'extract_flat': True,
             'ignoreerrors': True,
@@ -85,7 +88,7 @@ class YoutubeDownloader:
     def GetVideoInfo(url: str):
         try:
             opts = {
-                'proxy': 'socks5://0.0.0.0:14228',
+                'proxy': config['proxy'],
                 'retries': 3,
                 'socket_timeout': 10,
                 'ignoreerrors': True,
@@ -106,8 +109,8 @@ class YoutubeDownloader:
     def DownloadThumbnail(url: str, name: str):
         try:
             proxies = {
-                'http': 'socks5://0.0.0.0:14228',
-                'https': 'socks5://0.0.0.0:14228'
+                'http': config['proxy'],
+                'https': config['proxy']
             }
 
             response = requests.get(url, proxies=proxies)
@@ -124,9 +127,9 @@ class YoutubeDownloader:
             return None
 
     @staticmethod
-    def DownloadAudio(url: str, quality: int, resolution: str, output: str):
+    def DownloadAudio(url: str, quality: int | str, resolution: str, output: str):
         opts = {
-            'proxy': 'socks5://0.0.0.0:14228',
+            'proxy': config['proxy'],
             'format': f'bestaudio/best[audio_bitrate={quality}k]',
             'progress_hooks': [lambda d: formats.updateProgress(d)],
             'noplaylist': True,
@@ -144,6 +147,9 @@ class YoutubeDownloader:
             'writethumbnail': True
         }
 
+        if quality in ('best', 'worst'):
+            opts['format'] = f'{quality}audio'
+
         with yt_dlp.YoutubeDL(opts) as ydl:
             try:
                 ydl.download([url])
@@ -151,9 +157,9 @@ class YoutubeDownloader:
                 QtWidgets.QMessageBox.warning(None, 'ахтунг', f'Ошибка скачивания {url}')
 
     @staticmethod
-    def DownloadVideo(url: str, quality: int, resolution: str, output: str):
+    def DownloadVideo(url: str, quality: int | str, resolution: str, output: str):
         opts = {
-            'proxy': 'socks5://0.0.0.0:14228',  # прокси-сервер
+            'proxy': config['proxy'],  # прокси-сервер
             'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
             'merge_output_format': resolution,
             'noplaylist': True,
@@ -162,6 +168,8 @@ class YoutubeDownloader:
             'progress_hooks': [lambda d: formats.updateProgress(d)]
             #'writethumbnail': True
         }
+        if quality in ('best', 'worst'):
+            opts['format'] = f'{quality}video[ext={resolution}]+bestaudio'
 
         with yt_dlp.YoutubeDL(opts) as ydl:
             try:
@@ -173,7 +181,7 @@ class YoutubeDownloader:
     @staticmethod
     def DownloadVideoFromChannel(url: str, quality: int, resolution: str, output: str, index: int):
         opts = {
-            'proxy': 'socks5://0.0.0.0:14228',
+            'proxy': config['proxy'],
             'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
             'merge_output_format': resolution,
             'outtmpl': output,
@@ -192,7 +200,7 @@ class YoutubeDownloader:
     @staticmethod
     def DownloadVideoPlaylist(url: str, quality: int, resolution: str, output: str, index: int):
         opts = {
-            'proxy': 'socks5://0.0.0.0:14228',
+            'proxy': config['proxy'],
             'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
             'merge_output_format': resolution,
             'outtmpl': output,
@@ -211,7 +219,7 @@ class YoutubeDownloader:
     @staticmethod
     def DownloadVideoQueue(url: str, quality: int, resolution: str, output: str, index: int):
         opts = {
-            'proxy': 'socks5://0.0.0.0:14228',
+            'proxy': config['proxy'],
             'format': f'bestvideo[ext={resolution}][height={quality}]+bestaudio/best',
             'merge_output_format': resolution,
             'noplaylist': True,
@@ -231,7 +239,7 @@ class YoutubeDownloader:
     @staticmethod
     def DownloadAudioQueue(url: str, quality: int, resolution: str, output: str, index: int):
         opts = {
-            'proxy': 'socks5://0.0.0.0:14228',
+            'proxy': config['proxy'],
             'format': f'bestaudio/best[audio_bitrate={quality}k]',
             'progress_hooks': [lambda d: start.updateProgress(d, index)],
             'noplaylist': True,
@@ -820,6 +828,8 @@ class FormatsMenu(QtWidgets.QWidget):
             self.ui.radio1080,
             self.ui.radio1440,
             self.ui.radio2160,
+            self.ui.worstVideo,
+            self.ui.bestVideo,
                         ]
 
         self.videoFormatsButtons = [
@@ -835,7 +845,9 @@ class FormatsMenu(QtWidgets.QWidget):
         self.audioQualityButtons = [
             self.ui.audioRadio64,
             self.ui.audioRadio128,
-            self.ui.audioRadio192
+            self.ui.audioRadio192,
+            self.ui.worstAudio,
+            self.ui.bestAudio
         ]
 
         self.ui.radio2160.clicked.connect(lambda: (self.quality(2160), self.video))
@@ -847,12 +859,18 @@ class FormatsMenu(QtWidgets.QWidget):
         self.ui.radio240.clicked.connect(lambda: (self.quality(240), self.video))
         self.ui.radio144.clicked.connect(lambda: (self.quality(144), self.video))
 
+        self.ui.worstVideo.clicked.connect(lambda: (self.quality('worst'), self.video))
+        self.ui.bestVideo.clicked.connect(lambda: (self.quality('best'), self.video))
+
         self.ui.radioMP4.clicked.connect(lambda: (self.format('mp4'), self.video))
         self.ui.radioWEBM.clicked.connect(lambda: (self.format('webm'), self.video))
 
         self.ui.audioRadio192.clicked.connect(lambda: (self.quality(192), self.audio))
         self.ui.audioRadio128.clicked.connect(lambda: (self.quality(128), self.audio))
         self.ui.audioRadio64.clicked.connect(lambda: (self.quality(64), self.audio))
+
+        self.ui.worstAudio.clicked.connect(lambda: (self.quality('worst'), self.audio))
+        self.ui.bestAudio.clicked.connect(lambda: (self.quality('best'), self.audio))
 
         self.ui.radioMP3.clicked.connect(lambda: (self.format('mp3'), self.audio))
         self.ui.radioWAV.clicked.connect(lambda: (self.format('wav'), self.audio))
@@ -916,7 +934,7 @@ class FormatsMenu(QtWidgets.QWidget):
             radio.setEnabled(False)
             self.format_dict['format'] = None
 
-    def quality(self, quality: int):
+    def quality(self, quality: int | str):
         self.format_dict['quality'] = quality
 
     def format(self, format_: str):
